@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>2026 USA Family Trip</title>
+    <title>2026 USA Trip Flagship v18.1</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
@@ -14,54 +14,53 @@
         body { font-family: -apple-system, "PingFang TC", sans-serif; background: var(--earth-bg); color: var(--text-main); -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
         
-        /* 導覽分頁 */
+        /* 1. 導覽分頁按鈕 */
         .nav-overlay { position: absolute; bottom: -24px; right: 24px; display: flex; gap: 12px; z-index: 40; }
         .nav-btn { width: 52px; height: 52px; border-radius: 50%; background: var(--jp-white); color: var(--earth-red); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: none; transition: 0.2s; cursor: pointer; }
         .nav-btn.active { background: var(--earth-yellow); color: white; transform: scale(1.1); }
 
-        /* 航班卡片 */
+        /* 2. 航班卡片 (數位登機證對稱強化) */
         .flight-card { background: var(--dark-slate); color: white; border-radius: 28px; padding: 24px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(51, 65, 85, 0.3); }
-        .airline-header { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; }
-        .airline-logo { width: 22px; height: 22px; filter: brightness(0) invert(1); }
-        .flight-city { font-size: 22px; font-weight: 900; color: #FFF; line-height: 1.2; }
-        .flight-iata-term { font-size: 16px; font-weight: 700; color: #FFF; opacity: 0.9; margin-top: 4px; }
-        .flight-val { font-size: 18px; font-weight: 800; color: var(--earth-yellow); margin-top: 10px; }
-        .cross-day-badge { font-size: 10px; color: #EF4444; background: white; padding: 2px 6px; border-radius: 4px; margin-left: 4px; vertical-align: middle; }
+        .flight-city { font-size: 26px; font-weight: 900; line-height: 1.2; }
+        .flight-iata-term { font-size: 18px; font-weight: 700; color: #FFF; opacity: 0.9; margin-top: 4px; }
+        .flight-val { font-size: 22px; font-weight: 800; color: var(--earth-yellow); margin-top: 10px; }
+        .flight-date-label { font-size: 11px; opacity: 0.4; margin-top: 4px; display: block; }
+        .cross-day-badge { font-size: 10px; color: #EF4444; background: white; padding: 2px 6px; border-radius: 4px; margin-left: 6px; vertical-align: middle; }
 
-        /* 行程與住宿 */
-        .timeline-row { display: flex; gap: 16px; margin-bottom: 24px; cursor: pointer; padding: 0 4px; }
+        /* 3. 行程小卡 */
+        .timeline-row { display: flex; gap: 16px; margin-bottom: 24px; cursor: pointer; }
         .time-col { display: flex; flex-direction: column; align-items: center; width: 55px; flex-shrink: 0; }
-        .time-text { font-size: 17px; font-weight: 900; }
+        .time-text { font-size: 17px; font-weight: 900; color: var(--text-main); }
         .time-line { width: 2px; flex-grow: 1; background: #E5E1DA; margin-top: 8px; }
-        .content-col { flex-grow: 1; background: var(--jp-white); padding: 18px; border-radius: 22px; border: 1px solid rgba(0,0,0,0.03); }
+        .content-col { flex-grow: 1; background: var(--jp-white); padding: 20px; border-radius: 24px; border: 1px solid rgba(0,0,0,0.03); box-shadow: 0 4px 12px rgba(0,0,0,0.02); }
 
-        .stay-card { background: var(--dark-slate); color: white; padding: 26px; border-radius: 28px; margin-top: 15px; margin-left: 55px; position: relative; box-shadow: 0 12px 30px rgba(51, 65, 85, 0.25); }
+        /* 4. 住宿小卡 (深度版) */
+        .stay-card { background: var(--dark-slate); color: white; padding: 28px; border-radius: 32px; margin-top: 20px; margin-left: 55px; position: relative; box-shadow: 0 15px 35px rgba(51, 65, 85, 0.3); }
         .stay-card::before { content: ''; position: absolute; left: -28px; top: 0; bottom: 0; width: 2px; border-left: 2px dashed #D1D5DB; }
-        .stay-name { font-size: 20px; font-weight: 900; line-height: 1.3; margin-bottom: 12px; }
-        .stay-desc { font-size: 13px; color: rgba(255,255,255,0.7); line-height: 1.7; margin-bottom: 20px; text-align: justify; }
-        .stay-btn { background: var(--earth-yellow); color: white; padding: 14px; border-radius: 16px; font-size: 14px; font-weight: 800; text-align: center; display: block; width: 100%; text-decoration: none; }
+        .stay-name { font-size: 22px; font-weight: 900; line-height: 1.3; margin-bottom: 14px; color: var(--earth-yellow); }
+        .stay-desc { font-size: 14px; color: rgba(255,255,255,0.7); line-height: 1.8; margin-bottom: 24px; text-align: justify; }
+        .stay-action-group { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .stay-btn-main { background: var(--earth-yellow); color: white; padding: 14px; border-radius: 16px; font-size: 13px; font-weight: 800; text-align: center; text-decoration: none; }
+        .stay-btn-nav { background: rgba(255,255,255,0.1); color: white; padding: 14px; border-radius: 16px; font-size: 13px; font-weight: 800; text-align: center; text-decoration: none; border: 1px solid rgba(255,255,255,0.2); }
 
-        /* 詳細頁 Modal */
+        /* 5. 模態視窗 Modal */
         .modal-container { position: fixed; inset: 0; z-index: 100; background: white; display: flex; flex-direction: column; overflow-y: auto; }
-        .hero-image { width: 100%; height: 280px; object-fit: cover; border-radius: 0 0 32px 32px; }
-
-        .loading-overlay { position: fixed; inset: 0; background: var(--earth-bg); z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; }
         [x-cloak] { display: none !important; }
     </style>
 </head>
 <body x-data="travelApp()" x-init="init()">
 
-    <div x-show="loading" class="loading-overlay">
+    <div x-show="loading" class="fixed inset-0 bg-stone-50 z-50 flex flex-col items-center justify-center">
         <div class="animate-spin text-earth-red text-4xl mb-4"><i class="fas fa-circle-notch"></i></div>
-        <p class="text-xs font-bold tracking-widest text-stone-400">FLAGSHIP V17.2 RESTORING...</p>
+        <p class="text-[10px] font-black tracking-[0.3em] text-stone-400">DEBUGGING V18.1 COMPLETE...</p>
     </div>
 
     <div x-show="!loading" x-cloak>
-        <div class="relative h-64 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1436491865332-7a61a109c055?q=80&w=1200');">
+        <div class="relative h-72 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1464852047516-e505ec20edce?q=80&w=1200');">
             <div class="absolute inset-0 bg-stone-900/40"></div>
-            <div class="absolute top-24 left-8 text-white">
-                <h1 class="text-3xl font-black tracking-tight">2026 USA Trip<span class="text-xs opacity-40 ml-2">v17.2</span></h1>
-                <p class="text-[9px] font-bold opacity-70 uppercase tracking-[0.4em] mt-2">Canyon Expedition</p>
+            <div class="absolute top-28 left-10 text-white">
+                <h1 class="text-4xl font-black tracking-tighter">USA 2026<span class="text-xs opacity-40 ml-2">v18.1</span></h1>
+                <p class="text-[10px] font-bold opacity-60 uppercase tracking-[0.5em] mt-3">Family Expedition</p>
             </div>
             <div class="nav-overlay">
                 <button @click="currentTab = 'itinerary'" :class="currentTab==='itinerary'?'active':''" class="nav-btn"><i class="fas fa-map-marker-alt"></i></button>
@@ -70,18 +69,18 @@
             </div>
         </div>
 
-        <main class="p-6 pb-40">
+        <main class="p-6 pb-44">
             <div x-show="currentTab === 'itinerary'" x-transition>
-                <div class="flex overflow-x-auto gap-3 mb-6 no-scrollbar pb-2">
+                <div class="flex overflow-x-auto gap-4 mb-8 no-scrollbar pb-2">
                     <template x-for="d in dates">
-                        <div @click="activeDate = d.full" :class="activeDate === d.full ? 'bg-earth-red text-white' : 'bg-white text-stone-400'" class="flex-shrink-0 w-16 py-3 rounded-2xl text-center shadow-sm cursor-pointer transition-all">
-                            <div class="text-lg font-black" x-text="d.dayOnly"></div>
-                            <div class="text-[9px] uppercase" x-text="d.weekday"></div>
+                        <div @click="activeDate = d.full" :class="activeDate === d.full ? 'bg-earth-red text-white scale-110 shadow-lg' : 'bg-white text-stone-400'" class="flex-shrink-0 w-16 py-4 rounded-2xl text-center cursor-pointer transition-all">
+                            <div class="text-xl font-black" x-text="d.dayOnly"></div>
+                            <div class="text-[9px] font-bold uppercase" x-text="d.weekday"></div>
                         </div>
                     </template>
                 </div>
                 
-                <div id="event-list">
+                <div class="space-y-6">
                     <template x-for="event in filteredEvents">
                         <div class="timeline-row" @click="openModal(event)">
                             <div class="time-col">
@@ -97,12 +96,13 @@
 
                     <template x-if="currentStay">
                         <div class="stay-card">
-                            <span class="stay-tag"><i class="fas fa-hotel mr-1"></i> Tonight's Stay</span>
+                            <span class="text-[9px] font-black text-earth-yellow uppercase tracking-widest block mb-2">Tonight's Accommodation</span>
                             <div class="stay-name" x-text="currentStay.name"></div>
-                            <div class="stay-desc" x-text="currentStay.desc || '已準備好您的舒適空間。'"></div>
-                            <a :href="currentStay.link" target="_blank" class="stay-btn">
-                                <i class="fas fa-location-arrow mr-2"></i> 前往飯店網頁 / 導航
-                            </a>
+                            <div class="stay-desc" x-text="currentStay.desc || '已自動為您確認今日下榻處內容。'"></div>
+                            <div class="stay-action-group">
+                                <a :href="currentStay.link" target="_blank" class="stay-btn-main">住宿官網/網頁</a>
+                                <a :href="'https://www.google.com/maps/search/' + encodeURIComponent(currentStay.name)" target="_blank" class="stay-btn-nav">開啟導覽</a>
+                            </div>
                         </div>
                     </template>
                 </div>
@@ -111,28 +111,28 @@
             <div x-show="currentTab === 'info'" x-cloak x-transition class="space-y-6">
                 <template x-for="f in flightList">
                     <div class="flight-card">
-                        <div class="airline-header">
-                            <img :src="f.logo" class="airline-logo" onerror="this.src='https://www.united.com/favicon.ico'">
-                            <span class="text-[11px] font-black text-earth-yellow uppercase tracking-widest" x-text="f.airline + ' • ' + f.no"></span>
+                        <div class="airline-header flex items-center gap-3 mb-6 pb-4 border-b border-white/10">
+                            <img :src="f.logo" class="w-6 h-6 filter brightness-0 invert">
+                            <span class="text-[12px] font-black text-earth-yellow uppercase" x-text="f.airline + ' • ' + f.no"></span>
                         </div>
-                        <div class="flight-main">
-                            <div class="flight-node text-left">
+                        <div class="flex justify-between items-start">
+                            <div class="flex-1 text-left">
                                 <div class="flight-city" x-text="f.fromC"></div>
                                 <div class="flight-iata-term" x-text="f.fromE + ' ' + f.fromT"></div>
                                 <div class="flight-val" x-text="f.depT"></div>
-                                <div class="text-[10px] opacity-40 mt-1" x-text="f.depD"></div>
+                                <span class="flight-date-label" x-text="f.depD"></span>
                             </div>
-                            <div class="flex-1 px-4 opacity-20 text-4xl">→</div>
-                            <div class="flight-node text-right">
+                            <div class="px-4 pt-4 opacity-20 text-3xl">→</div>
+                            <div class="flex-1 text-right">
                                 <div class="flight-city" x-text="f.toC"></div>
                                 <div class="flight-iata-term" x-text="f.toE + ' ' + f.toT"></div>
                                 <div class="flight-val">
                                     <span x-text="f.arrT"></span>
                                     <template x-if="f.cross">
-                                        <span class="cross-day-badge">+1d</span>
+                                        <span class="cross-day-badge" x-text="'+' + f.crossDays + 'd'"></span>
                                     </template>
                                 </div>
-                                <div class="text-[10px] opacity-40 mt-1" x-text="f.arrD"></div>
+                                <span class="flight-date-label" x-text="f.arrD"></span>
                             </div>
                         </div>
                     </div>
@@ -140,49 +140,46 @@
             </div>
 
             <div x-show="currentTab === 'expense'" x-cloak x-transition>
-                <div class="bg-dark-slate p-8 rounded-[35px] text-white flex justify-between items-center shadow-xl">
+                <div class="bg-dark-slate p-10 rounded-[40px] text-white flex justify-between items-center shadow-2xl">
                     <div>
-                        <p class="text-stone-400 text-[10px] font-bold uppercase tracking-widest mb-1">Total Spent</p>
-                        <div class="text-4xl font-light">$ <span x-text="totalUSD">0</span></div>
+                        <p class="text-stone-400 text-[10px] font-black uppercase tracking-widest mb-2">Total Budget Status</p>
+                        <div class="text-5xl font-light">$ <span x-text="totalUSD">0</span></div>
                     </div>
-                    <i class="fas fa-coins text-earth-yellow text-xl"></i>
+                    <i class="fas fa-coins text-earth-yellow text-3xl"></i>
                 </div>
             </div>
         </main>
 
         <div x-show="selectedEvent" class="modal-container" x-transition x-cloak>
-            <div class="relative h-72 flex-shrink-0">
-                <img :src="getHeroImg(selectedEvent?.name)" class="hero-image">
-                <button @click="selectedEvent = null" class="absolute top-8 right-8 w-12 h-12 rounded-full bg-black/30 backdrop-blur-md text-white flex items-center justify-center"><i class="fas fa-times"></i></button>
+            <div class="relative h-[320px] flex-shrink-0">
+                <img :src="getHeroImg(selectedEvent?.name)" class="w-full h-full object-cover">
+                <button @click="selectedEvent = null" class="absolute top-8 right-8 w-12 h-12 rounded-full bg-black/40 text-white flex items-center justify-center"><i class="fas fa-times"></i></button>
             </div>
-            <div class="flex-1 p-8 pb-32">
-                <h1 class="text-3xl font-black text-stone-900 leading-tight mb-6" x-text="selectedEvent?.name"></h1>
-                <div class="space-y-8">
+            <div class="flex-1 p-10 pb-40">
+                <h1 class="text-3xl font-black mb-8" x-text="selectedEvent?.name"></h1>
+                <div class="space-y-10">
                     <div>
-                        <div class="text-[10px] font-black text-stone-300 uppercase tracking-widest mb-3 border-b pb-2">景點深度解析</div>
-                        <p class="text-stone-600 leading-relaxed text-justify indent-8" x-text="getEssence(selectedEvent?.name)"></p>
+                        <div class="text-[10px] font-black text-stone-300 uppercase mb-4 border-b pb-2 tracking-widest">深度解析 Essence</div>
+                        <p class="text-stone-600 leading-relaxed text-justify" x-text="getEssence(selectedEvent?.name)"></p>
                     </div>
                     <div>
-                        <div class="text-[10px] font-black text-stone-300 uppercase tracking-widest mb-3 border-b pb-2">AI 旅行實戰攻略</div>
+                        <div class="text-[10px] font-black text-stone-300 uppercase mb-4 border-b pb-2 tracking-widest">AI 旅行攻略 Tips</div>
                         <template x-for="tip in getTips(selectedEvent?.name)">
-                            <div class="p-5 bg-stone-50 rounded-2xl border border-stone-100 mb-4">
-                                <span class="text-[10px] font-black text-earth-red uppercase block mb-1" x-text="tip.label"></span>
-                                <p class="text-sm text-stone-700 leading-relaxed" x-text="tip.val"></p>
+                            <div class="p-6 bg-stone-50 rounded-3xl border border-stone-100 mb-4 text-sm text-stone-700 leading-relaxed">
+                                <span class="text-earth-red font-black block mb-2" x-text="tip.label"></span>
+                                <span x-text="tip.val"></span>
                             </div>
                         </template>
                     </div>
                 </div>
-            </div>
-            <div class="fixed bottom-0 left-0 right-0 p-8 bg-white/80 backdrop-blur-md">
-                <button @click="window.open('http://googleusercontent.com/maps.google.com/5' + encodeURIComponent(selectedEvent?.name + ' USA'), '_blank')" class="w-full py-5 bg-green-700 text-white rounded-2xl font-bold flex items-center justify-center gap-2 shadow-xl"><i class="fas fa-location-arrow"></i> 導航至該地</button>
             </div>
         </div>
     </div>
 
     <script>
         const MASTER_DB = {
-            "大峽谷": { essence: "大峽谷國家公園（Grand Canyon）是科羅拉多河歷經六百萬年切割出的地理奇蹟。這處地層橫跨地球 20 億年的地質歷史，南緣海拔約 2,100 公尺，隨陽光變幻呈現紅、赭、金黃。這裡是感受大自然無盡耐心與規模感的最佳場所。", tips: [{label: "攝影秘訣", val: "Mather Point 人最多，若想避開人群，建議前往 Yavapai Point，視野同樣開闊但更安靜。"}, {label: "氣溫提醒", val: "峽谷早晚溫差極大，夏季也需帶防風薄外套。"}] },
-            "羚羊": { essence: "羚羊谷（Antelope Canyon）是典型的狹縫型峽谷，由紅砂岩經過數百萬年暴洪沖刷而成。光線從頂部裂縫灑入，在波浪紋理岩壁上反覆折射，營造出魔幻火紅效果，是攝影師的朝聖之地。", tips: [{label: "手機設定", val: "拍攝時將白平衡調至『陰天模式』，能拍出極致火紅感。"}, {label: "預約提示", val: "必須參加當地導覽，建議提早 3 個月預約。"}] }
+            "大峽谷": { essence: "大峽谷國家公園（Grand Canyon）是科羅拉多河歷經六百萬年持續侵蝕而成的地理壯觀。這處被譽為地球『地質史書』的峽谷，地層最深處揭露了地球近 20 億年前的地質構造。南緣海拔約 2,100 公尺，是世界七大自然奇景之一。", tips: [{label: "攝影推薦", val: "建議前往 Yavapai Point，避開人潮但視野同樣開闊。"}, {label: "氣溫提醒", val: "峽谷早晚溫差極大，夏季也請攜帶薄外套。"}] },
+            "羚羊": { essence: "羚羊谷（Antelope Canyon）是狹縫型峽谷，由紅砂岩經過數百萬年暴洪沖刷而成。光線灑入時，岩壁呈現火紅色的動態流動感。", tips: [{label: "手機拍攝", val: "白平衡調至『陰天模式』，能帶出最火紅的岩石色彩。"}] }
         };
 
         function travelApp() {
@@ -191,7 +188,7 @@
                 dates: [], events: [], totalUSD: 0,
                 flightList: [
                     { no: "UA872", airline: "United Airlines", logo: "https://www.united.com/favicon.ico", fromC: "台北", fromE: "TPE", fromT: "T2", toC: "舊金山", toE: "SFO", toT: "I", depD: "05/03", depT: "09:50", arrD: "05/03", arrT: "06:25", cross: false },
-                    { no: "UA18", airline: "United Airlines", logo: "https://www.united.com/favicon.ico", fromC: "舊金山", fromE: "SFO", fromT: "T3", toC: "台北", toE: "TPE", toT: "T2", depD: "05/16", depT: "14:10", arrD: "05/18", arrT: "18:45", cross: true }
+                    { no: "UA18", airline: "United Airlines", logo: "https://www.united.com/favicon.ico", fromC: "舊金山", fromE: "SFO", fromT: "T3", toC: "台北", toE: "TPE", toT: "T2", depD: "05/16", depT: "14:10", arrD: "05/18", arrT: "18:45", cross: true, crossDays: 2 }
                 ],
                 async init() {
                     this.dates = this.generateDates();
@@ -210,23 +207,21 @@
                 get currentStay() {
                     let last = [...this.filteredEvents].reverse().find(e => e.stay && e.stay.trim() !== "");
                     if (!last) return null;
-                    let urlRegex = /(https?:\/\/[^\s]+)/g;
-                    let url = (last.stay.match(urlRegex) || [])[0];
-                    let text = last.stay.replace(urlRegex, '').trim().split('\n');
-                    return { name: text[0], desc: text.slice(1).join(' '), link: url || `http://googleusercontent.com/maps.google.com/6{encodeURIComponent(text[0])}` };
+                    let url = (last.stay.match(/https?:\/\/[^\s]+/g) || [])[0];
+                    let text = last.stay.replace(/https?:\/\/[^\s]+/g, '').trim().split('\n');
+                    return { name: text[0], desc: text.slice(1).join(' '), link: url || '#' };
                 },
                 openModal(e) { this.selectedEvent = e; },
                 getHeroImg(n) { return n?.includes("大峽谷") ? "https://images.unsplash.com/photo-1474044159687-1ee9f3a51722?q=80&w=800" : "https://images.unsplash.com/photo-1505521227773-01c9c6283439?q=80&w=800"; },
-                getEssence(n) { for (let k in MASTER_DB) { if (n?.includes(k)) return MASTER_DB[k].essence; } return "橫跨美西最壯闊的地理脈絡。"; },
-                getTips(n) { for (let k in MASTER_DB) { if (n?.includes(k)) return MASTER_DB[k].tips; } return [{label:"通用提示",val:"防曬與補水是首要任務。"}]; },
+                getEssence(n) { for (let k in MASTER_DB) { if (n?.includes(k)) return MASTER_DB[k].essence; } return "橫跨美西壯闊地景，感受自然的規模。"; },
+                getTips(n) { for (let k in MASTER_DB) { if (n?.includes(k)) return MASTER_DB[k].tips; } return [{label:"提醒",val:"請多喝水注意防曬。"}]; },
                 async refreshAll() {
-                    const ts = Date.now();
-                    const url = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTCDL1TfyD_VsfRPWQxEUovWSnLZmpUzAKrZr-ni7BIJ8DgrKWxPGRywUCv7Eu6j-rSbcdPZbG4kiX1/pub?gid=1750147690&single=true&output=csv&t=${ts}`;
-                    const expUrl = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTCDL1TfyD_VsfRPWQxEUovWSnLZmpUzAKrZr-ni7BIJ8DgrKWxPGRywUCv7Eu6j-rSbcdPZbG4kiX1/pub?gid=320828565&single=true&output=csv&t=${ts}`;
+                    const url = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTCDL1TfyD_VsfRPWQxEUovWSnLZmpUzAKrZr-ni7BIJ8DgrKWxPGRywUCv7Eu6j-rSbcdPZbG4kiX1/pub?gid=1750147690&single=true&output=csv&t=${Date.now()}`;
+                    const expUrl = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTCDL1TfyD_VsfRPWQxEUovWSnLZmpUzAKrZr-ni7BIJ8DgrKWxPGRywUCv7Eu6j-rSbcdPZbG4kiX1/pub?gid=320828565&single=true&output=csv&t=${Date.now()}`;
                     Papa.parse(url, {
                         download: true, header: true,
                         complete: (r) => {
-                            let lastD = "";
+                            let lastD = ""; // 日期繼承
                             this.events = r.data.map(row => {
                                 let d = (row.日期 || "").trim();
                                 if (d !== "") {
@@ -238,10 +233,7 @@
                             this.loading = false;
                         }
                     });
-                    Papa.parse(expUrl, {
-                        download: true, header: true,
-                        complete: (r) => { this.totalUSD = r.data.reduce((sum, row) => sum + (parseFloat(row.金額) || 0), 0).toFixed(1); }
-                    });
+                    Papa.parse(expUrl, { download: true, header: true, complete: (r) => { this.totalUSD = r.data.reduce((sum, row) => sum + (parseFloat(row.金額) || 0), 0).toFixed(1); } });
                 }
             }
         }
