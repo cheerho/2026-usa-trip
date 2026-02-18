@@ -15,7 +15,7 @@
         .no-scrollbar::-webkit-scrollbar { display: none; }
         .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
-        /* 日期滑動 */
+        /* 日期選單 */
         .date-slider { display: flex; overflow-x: auto; gap: 12px; padding: 20px; -webkit-overflow-scrolling: touch; }
         .date-card { flex: 0 0 80px; text-align: center; padding: 14px 0; border-radius: 20px; background: var(--jp-white); border: 1px solid #E5E1DA; transition: 0.3s; }
         .date-card.active { background: var(--earth-red); color: white; border-color: var(--earth-red); transform: translateY(-2px); box-shadow: 0 8px 15px rgba(166, 123, 113, 0.2); }
@@ -27,31 +27,36 @@
         .nav-btn { width: 52px; height: 52px; border-radius: 50%; background: var(--jp-white); color: var(--earth-red); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: none; transition: 0.2s; }
         .nav-btn.active { background: var(--earth-yellow); color: white; transform: scale(1.1); }
 
-        /* 列表樣式 */
+        /* 列表 */
         .timeline-row { display: flex; gap: 16px; margin-bottom: 24px; cursor: pointer; }
         .time-col { display: flex; flex-direction: column; align-items: center; width: 60px; flex-shrink: 0; }
         .time-text { font-size: 18px; font-weight: 900; color: var(--text-main); letter-spacing: -0.5px; }
         .time-line { width: 2px; flex-grow: 1; background: #E5E1DA; margin-top: 8px; border-radius: 2px; }
         .content-col { flex-grow: 1; background: var(--jp-white); padding: 16px; border-radius: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.03); }
-        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 
-        /* 標籤樣式 */
-        .tag-eat { color: #D97706; background: #FEF3C7; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-right: 4px; font-size: 11px; }
-        .tag-buy { color: #2563EB; background: #DBEAFE; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-right: 4px; font-size: 11px; }
-        .tag-res { color: #DC2626; background: #FEE2E2; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-right: 4px; font-size: 11px; }
-        
-        /* 詳細頁圖片與導遊 */
-        .hero-image { width: 100%; height: 240px; object-fit: cover; border-radius: 0 0 32px 32px; mask-image: linear-gradient(to bottom, black 85%, transparent 100%); }
+        /* 航班儀表板樣式 */
+        .flight-card { background: #334155; color: white; border-radius: 24px; padding: 24px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(51, 65, 85, 0.3); }
+        .flight-main { display: flex; justify-content: space-between; align-items: center; text-align: center; margin-bottom: 24px; }
+        .flight-city { font-size: 20px; font-weight: 900; color: #FFF; line-height: 1.2; }
+        .flight-iata { font-size: 14px; font-weight: 400; color: var(--earth-yellow); opacity: 0.8; margin-top: 2px; }
+        .flight-arrow-box { flex: 1; position: relative; display: flex; flex-direction: column; align-items: center; }
+        .flight-duration { font-size: 10px; color: var(--earth-yellow); opacity: 0.7; margin-top: 4px; }
+        .flight-time-row { display: flex; justify-content: space-between; margin-bottom: 20px; text-align: center; font-size: 13px; }
+        .flight-date { font-weight: 300; opacity: 0.6; margin-bottom: 2px; }
+        .flight-time { font-weight: 800; font-size: 16px; color: var(--earth-yellow); }
+
+        /* 詳細頁圖片 */
+        .hero-image { width: 100%; height: 260px; object-fit: cover; border-radius: 0 0 32px 32px; }
         .guide-box { background: #F8FAFC; border-radius: 16px; padding: 18px; font-size: 14px; line-height: 1.8; color: #475569; border-left: 5px solid #94A3B8; margin: 16px 0; }
-        .guide-title { font-size: 11px; font-weight: 900; color: #64748B; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
-
-        .add-btn { position: fixed; bottom: 40px; right: 25px; width: 60px; height: 60px; border-radius: 50%; background: var(--earth-red); color: white; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 8px 25px rgba(166, 123, 113, 0.4); z-index: 100; }
+        
+        .tag-eat { color: #D97706; background: #FEF3C7; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-right: 4px; font-size: 11px; }
+        .tag-res { color: #DC2626; background: #FEE2E2; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-right: 4px; font-size: 11px; }
         [x-cloak] { display: none !important; }
     </style>
 </head>
 <body x-data="travelApp()" x-init="init()">
 
-    <div class="relative h-64 bg-cover bg-center shadow-lg" style="background-image: url('https://images.unsplash.com/photo-1509225770129-fbcf8a696c0b?q=80&w=1200');">
+    <div class="relative h-64 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1509225770129-fbcf8a696c0b?q=80&w=1200');">
         <div class="absolute inset-0 bg-stone-900/20"></div>
         <div class="absolute top-24 left-8 text-white">
             <h1 class="text-3xl font-black tracking-tight leading-tight">2026 USA<br>Family Trip</h1>
@@ -68,13 +73,12 @@
         <div x-show="currentTab === 'itinerary'">
             <div class="date-slider mb-6 no-scrollbar">
                 <template x-for="d in dates" :key="d.full">
-                    <div @click="activeDate = d.full; updateLocationByEvents()" :class="activeDate === d.full ? 'active' : ''" class="date-card">
+                    <div @click="activeDate = d.full" :class="activeDate === d.full ? 'active' : ''" class="date-card">
                         <div class="date-num" x-text="d.dayOnly"></div>
                         <div class="date-day" x-text="d.weekday"></div>
                     </div>
                 </template>
             </div>
-
             <div id="event-list">
                 <template x-for="(event, index) in filteredEvents" :key="index">
                     <div class="timeline-row" @click="openDetail(event)">
@@ -93,81 +97,109 @@
         </div>
 
         <div x-show="currentTab === 'info'" x-cloak class="space-y-6">
+            <template x-for="flight in allFlights" :key="flight.id">
+                <div class="flight-card">
+                    <div class="flex justify-between items-center mb-6 opacity-50 text-[10px] font-bold tracking-widest uppercase">
+                        <span x-text="extractFlightCode(flight.note) || extractFlightCode(flight.transport)"></span>
+                        <span class="text-green-400">Live Status Available</span>
+                    </div>
+
+                    <div class="flight-main">
+                        <div>
+                            <div class="flight-city" x-text="getFlightInfo(flight).fromCity"></div>
+                            <div class="flight-iata" x-text="getFlightInfo(flight).fromIATA"></div>
+                        </div>
+                        <div class="flight-arrow-box">
+                            <div class="text-2xl font-light">→</div>
+                            <div class="flight-duration" x-text="getFlightInfo(flight).duration"></div>
+                        </div>
+                        <div>
+                            <div class="flight-city" x-text="getFlightInfo(flight).toCity"></div>
+                            <div class="flight-iata" x-text="getFlightInfo(flight).toIATA"></div>
+                        </div>
+                    </div>
+
+                    <div class="flight-time-row">
+                        <div>
+                            <div class="flight-date" x-text="getFlightInfo(flight).depDate"></div>
+                            <div class="flight-time" x-text="getFlightInfo(flight).depTime"></div>
+                        </div>
+                        <div class="pt-4 opacity-20">|</div>
+                        <div>
+                            <div class="flight-date" x-text="getFlightInfo(flight).arrDate"></div>
+                            <div class="flight-time" x-text="getFlightInfo(flight).arrTime"></div>
+                        </div>
+                    </div>
+
+                    <button @click="checkFlight(extractFlightCode(flight.note) || extractFlightCode(flight.transport))" class="w-full py-4 bg-white/10 hover:bg-white/20 rounded-2xl text-[11px] font-black uppercase tracking-widest transition-all">
+                        Track Real-time Status <i class="fas fa-external-link-alt ml-1"></i>
+                    </button>
+                </div>
+            </template>
+
             <div class="p-8 bg-white rounded-[32px] border border-stone-100 shadow-sm">
-                <h2 class="text-[9px] font-black text-stone-300 mb-6 uppercase tracking-widest">Currency (USD → TWD)</h2>
+                <h2 class="text-[9px] font-black text-stone-300 mb-6 uppercase tracking-widest">Currency Converter</h2>
                 <div class="flex items-center gap-4">
-                    <div class="flex-1"><input type="number" x-model="exchangeUSD" class="w-full p-4 bg-stone-50 rounded-2xl border-none text-xl font-bold text-stone-700 outline-none"></div>
-                    <i class="fas fa-arrow-right text-stone-200"></i>
-                    <div class="flex-1"><div class="w-full p-4 bg-stone-50 rounded-2xl font-bold text-stone-700 text-xl" x-text="'≈ ' + (exchangeUSD * 32.5).toFixed(0)"></div></div>
+                    <div class="flex-1"><input type="number" x-model="exchangeUSD" class="w-full p-4 bg-stone-50 rounded-2xl text-xl font-bold outline-none"></div>
+                    <div class="text-stone-300"><i class="fas fa-arrow-right"></i></div>
+                    <div class="flex-1"><div class="w-full p-4 bg-stone-50 rounded-2xl font-bold text-xl" x-text="'≈ ' + (exchangeUSD * 32.5).toFixed(0)"></div></div>
                 </div>
             </div>
         </div>
 
         <div x-show="currentTab === 'expense'" x-cloak>
-            <div class="p-8 bg-stone-800 rounded-[35px] text-white mb-8 flex justify-between items-center shadow-xl border-b-4 border-earth-yellow">
+            <div class="p-8 bg-stone-800 rounded-[35px] text-white flex justify-between items-center shadow-xl">
                 <div>
-                    <p class="text-stone-400 text-[10px] font-bold uppercase tracking-widest mb-1">Total Spent</p>
-                    <div class="text-4xl font-light tracking-tighter">$ <span x-text="totalUSD">0</span></div>
+                    <p class="text-stone-400 text-[10px] font-bold uppercase tracking-widest">Total Spent</p>
+                    <div class="text-4xl font-light">$ <span x-text="totalUSD">0</span></div>
                 </div>
                 <i class="fas fa-coins text-earth-yellow text-xl"></i>
             </div>
         </div>
 
-        <div x-show="selectedEvent" class="fixed inset-0 z-[100] bg-white flex flex-col" x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200 transform" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" x-cloak>
-            
-            <div class="relative h-64 bg-stone-200">
-                <img :src="getGuideData(selectedEvent?.name).img" class="hero-image">
-                <button @click="selectedEvent = null" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center shadow-lg"><i class="fas fa-times"></i></button>
+        <div x-show="selectedEvent" class="fixed inset-0 z-[100] bg-white flex flex-col" x-transition x-cloak>
+            <div class="relative h-72 bg-stone-200">
+                <img :src="getHeroImage(selectedEvent?.name)" class="hero-image" onerror="this.src='https://images.unsplash.com/photo-1501594907352-04cda38ebc29?q=80&w=800'">
+                <button @click="selectedEvent = null" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-black/30 backdrop-blur-md text-white flex items-center justify-center"><i class="fas fa-times"></i></button>
             </div>
-
             <div class="flex-1 overflow-y-auto p-6 pb-32">
-                <h1 class="text-3xl font-black text-stone-900 leading-tight mb-2" x-text="selectedEvent?.name"></h1>
-                <div class="inline-block bg-stone-800 text-white text-[10px] font-bold px-3 py-1 rounded-full mb-6">
-                    <i class="far fa-clock mr-1"></i> <span x-text="selectedEvent?.time"></span>
+                <h1 class="text-3xl font-black text-stone-900 leading-tight mb-4" x-text="selectedEvent?.name"></h1>
+                <div class="guide-box shadow-sm">
+                    <div class="text-[10px] font-black text-stone-400 mb-2 uppercase tracking-widest"><i class="fas fa-robot mr-1"></i> AI Travel Guide</div>
+                    <p class="text-stone-600" x-text="getGuideText(selectedEvent?.name)"></p>
                 </div>
-
-                <div class="guide-box">
-                    <div class="guide-title"><i class="fas fa-map-marked-alt"></i> Google Maps & AI Intelligence</div>
-                    <p x-text="getGuideData(selectedEvent?.name).text"></p>
-                </div>
-
                 <div class="mt-8">
-                    <h3 class="text-xs font-black text-stone-400 uppercase tracking-widest border-b border-stone-100 pb-2 mb-4">Itinerary Notes</h3>
+                    <h3 class="text-xs font-black text-stone-300 uppercase tracking-widest mb-4">Personal Notes</h3>
                     <div class="text-stone-600 text-sm leading-relaxed" x-html="highlightNotes(selectedEvent?.note || '無備註資訊')"></div>
                 </div>
             </div>
-
-            <div class="p-6 border-t border-stone-100 bg-white absolute bottom-0 w-full">
-                <button @click="openGoogleMap(selectedEvent.name)" class="w-full py-4 bg-green-700 text-white rounded-2xl font-bold text-lg shadow-xl active:scale-95 transition-transform flex items-center justify-center gap-2">
-                    <i class="fas fa-location-arrow"></i> 導航前往景點
+            <div class="p-6 border-t bg-white absolute bottom-0 w-full">
+                <button @click="openGoogleMap(selectedEvent.name)" class="w-full py-4 bg-green-700 text-white rounded-2xl font-bold shadow-xl flex items-center justify-center gap-2">
+                    <i class="fas fa-location-arrow"></i> 導航前往目的地
                 </button>
             </div>
         </div>
     </main>
 
     <script>
-        // ★ 深度 AI 導遊與圖片庫
-        const TRAVEL_DB = {
-            "大峽谷": {
-                img: "https://images.unsplash.com/photo-1474044159687-1ee9f3a51722?q=80&w=800",
-                text: "【Google Maps 簡介】位於亞利桑那州的著名國家公園，以壯麗的紅色岩層峽谷聞名，是科羅拉多河經過數百萬年侵蝕而成的自然奇蹟。\n【AI 深度解析】大峽谷不只是景點，更是一部地質教科書。這裡展現了地球 20 億年的地質歷史。建議前往 Mather Point 觀賞日出，視野最為開闊。氣候變化劇烈，早晚溫差極大，請攜帶保暖衣物並隨時補充水分。"
-            },
-            "羚羊谷": {
-                img: "https://images.unsplash.com/photo-1505521227773-01c9c6283439?q=80&w=800",
-                text: "【Google Maps 簡介】納瓦荷族保留地內的狹縫型峽谷，以其波浪狀岩壁紋理和魔幻光束聞名，是攝影愛好者的聖地。\n【AI 深度解析】這裡是光影交織的夢幻天堂。拍攝時建議將手機白平衡調至『陰天模式』，能更完美呈現岩石溫暖的橘紅色。由於是神聖領地，必須由當地導遊帶領進入，且嚴禁攜帶腳架與大型背包，請遵守現場規定。"
-            },
-            "馬蹄灣": {
-                img: "https://images.unsplash.com/photo-1504100918-02fd059b0b08?q=80&w=800",
-                text: "【Google Maps 簡介】科羅拉多河在此形成壯觀的 270 度馬蹄形彎曲，站在 300 公尺懸崖邊可俯瞰翡翠綠的河水與紅色岩壁。\n【AI 深度解析】這裡完全沒有遮蔽物，站在懸崖邊緣能感受到大自然的鬼斧神工。最佳拍攝時間為上午 10 點至下午 2 點，此時陽光能照亮河灣底部，避免陰影遮擋河水綠色。請注意防曬與防暑。"
-            },
-            "拉斯維加斯": {
-                img: "https://images.unsplash.com/photo-1581351123004-757df051db8e?q=80&w=800",
-                text: "【Google Maps 簡介】內華達州沙漠中的度假勝地，以賭場、奢華飯店與娛樂表演聞名，被稱為「世界娛樂之都」。\n【AI 深度解析】這座城市在夜幕低垂後才真正甦醒。除了賭場，參觀各大主題飯店也是一場視覺饗宴。推薦漫步 The Strip 大道，欣賞 Bellagio 水舞秀（免費），並前往最新地標 Sphere 球體劇場打卡。"
-            },
-            "奧斯汀": {
-                img: "https://images.unsplash.com/photo-1531218150217-54595bc2b934?q=80&w=800",
-                text: "【Google Maps 簡介】德州首府，以現場音樂、科技產業與獨特的『怪誕』文化 (Keep Austin Weird) 聞名。\n【AI 深度解析】奧斯汀充滿年輕活力，擁有許多餐車文化。必訪 Barton Springs Pool 天然湧泉。傍晚時分，可前往 Congress Avenue Bridge 觀看壯觀的蝙蝠出洞秀。這裡的德州烤肉 (BBQ) 是絕對不能錯過的美味。"
-            }
+        // ★ 核心資料庫：關鍵字映射
+        const KEYWORD_MAP = {
+            "大峽谷": { en: "grand canyon", zh: "大峽谷國家公園" },
+            "羚羊谷": { en: "antelope canyon", zh: "羚羊谷" },
+            "馬蹄灣": { en: "horseshoe bend", zh: "馬蹄灣" },
+            "拉斯維加斯": { en: "las vegas strip", zh: "拉斯維加斯" },
+            "奧斯汀": { en: "austin texas", zh: "奧斯汀" },
+            "舊金山": { en: "san francisco", zh: "舊金山" },
+            "飯店": { en: "luxury hotel room", zh: "住宿" },
+            "飛機": { en: "airplane wing sunset", zh: "航班" },
+            "漢堡": { en: "gourmet burger", zh: "餐廳" }
+        };
+
+        const GUIDE_TEXTS = {
+            "大峽谷": "【Google Maps 簡介】位於亞利桑那州的著名國家公園，以壯麗的紅色岩層峽谷聞名。\n【AI 深度解析】大峽谷不只是景點，更是一部地質教科書。這裡展現了地球 20 億年的地質歷史。建議前往 Mather Point 觀賞日出，視野最為開闊。氣候變化劇烈，早晚溫差極大，請攜帶保暖衣物並隨時補充水分。",
+            "羚羊谷": "【Google Maps 簡介】納瓦荷族保留地內的狹縫型峽谷，以其波浪狀岩壁紋理和魔幻光束聞名。\n【AI 深度解析】這裡是光影交織的夢幻天堂。拍攝時建議將手機白平衡調至『陰天模式』，能更完美呈現岩石溫暖的橘紅色。必須由當地導遊帶領進入，嚴禁攜帶腳架。",
+            "馬蹄灣": "【Google Maps 簡介】科羅拉多河在此形成壯觀的 270 度馬蹄形彎曲。\n【AI 深度解析】這是一個完全沒有遮蔽物的壯闊景點。最佳拍攝時間為上午 10 點至下午 2 點，此時陽光能照亮河灣底部，避免陰影遮擋河水綠色。請注意防曬。",
+            "拉斯維加斯": "【Google Maps 簡介】沙漠中的度假勝地，以賭場與娛樂表演聞名。\n【AI 深度解析】這座城市在夜幕低垂後才真正甦醒。除了賭場，參觀各大主題飯店也是一場視覺饗宴。推薦漫步 The Strip 大道，欣賞 Bellagio 水舞秀，並前往最新地標 Sphere 打卡。"
         };
 
         function travelApp() {
@@ -179,92 +211,35 @@
                 exchangeUSD: 1,
                 dates: [],
                 events: [],
-                expenses: [],
                 
                 async init() {
-                    // ★ 生成精準日期區間：5/03 - 5/18
                     this.dates = this.generateDateRange('2026/05/03', '2026/05/18');
                     await this.refreshAll();
                 },
 
                 generateDateRange(start, end) {
-                    let dates = [];
-                    let s = new Date(start);
-                    let e = new Date(end);
+                    let dates = [], s = new Date(start), e = new Date(end);
                     while(s <= e) {
-                        let y = s.getFullYear();
-                        let m = String(s.getMonth() + 1).padStart(2, '0');
-                        let d = String(s.getDate()).padStart(2, '0');
-                        let weekdays = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'];
-                        dates.push({
-                            full: `${y}/${m}/${d}`,
-                            dayOnly: d,
-                            weekday: weekdays[s.getDay()]
-                        });
+                        let y = s.getFullYear(), m = String(s.getMonth() + 1).padStart(2, '0'), d = String(s.getDate()).padStart(2, '0');
+                        dates.push({ full: `${y}/${m}/${d}`, dayOnly: d, weekday: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'][s.getDay()] });
                         s.setDate(s.getDate() + 1);
                     }
                     return dates;
                 },
 
-                openDetail(event) {
-                    this.selectedEvent = event;
-                },
-
-                // ★ 導遊資料抓取邏輯
-                getGuideData(name) {
-                    if(!name) return { img: "", text: "" };
-                    for (let key in TRAVEL_DB) {
-                        if (name.includes(key)) return TRAVEL_DB[key];
-                    }
-                    // 通用 Default
-                    return {
-                        img: "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?q=80&w=800",
-                        text: "【Google Maps 簡介】美國熱門旅遊區域，擁有豐富的自然景觀與公路旅行文化。\n【AI 深度解析】這段行程充滿了經典的美式冒險感。無論是自駕跨越沙漠還是漫步大都會，建議隨身攜帶水壺與簡單補給。美國西岸氣候乾燥，保濕與防曬是旅程順暢的關鍵。"
-                    };
-                },
-
-                highlightNotes(note) {
-                    if (!note) return '尚無備註資訊';
-                    let html = note.replace(/\n/g, '<br>');
-                    html = html.replace(/(必吃|好吃|推薦)/g, '<span class="tag-eat"><i class="fas fa-utensils"></i> $1</span>');
-                    html = html.replace(/(必買|購物)/g, '<span class="tag-buy"><i class="fas fa-shopping-bag"></i> $1</span>');
-                    html = html.replace(/(預約|訂位|門票|Code)/gi, '<span class="tag-res"><i class="fas fa-ticket-alt"></i> $1</span>');
-                    return html;
-                },
-
-                openGoogleMap(name) {
-                    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}`, '_blank');
-                },
-
-                get filteredEvents() {
-                    return this.events.filter(e => e.date === this.activeDate);
-                },
-
-                async refreshAll() {
-                    const timeStamp = new Date().getTime();
-                    const SHEETS_CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTCDL1TfyD_VsfRPWQxEUovWSnLZmpUzAKrZr-ni7BIJ8DgrKWxPGRywUCv7Eu6j-rSbcdPZbG4kiX1/pub?gid=1750147690&single=true&output=csv&t=${timeStamp}`;
-                    
-                    Papa.parse(SHEETS_CSV_URL, {
-                        download: true, header: true, skipEmptyLines: true,
-                        complete: (results) => {
-                            this.events = results.data.map(row => {
-                                let dateStr = row.日期;
-                                if (dateStr) {
-                                    let parts = dateStr.match(/\d+/g); 
-                                    if(parts && parts.length >= 2) {
-                                        let y = parts.length === 3 ? parts[0] : '2026';
-                                        let m = parts.length === 3 ? parts[1] : parts[0];
-                                        let d = parts.length === 3 ? parts[2] : parts[1];
-                                        dateStr = `${y}/${m.padStart(2, '0')}/${d.padStart(2, '0')}`;
-                                    }
-                                }
-                                return { date: dateStr, time: row.時間, name: row.行程, category: row.行程, note: row.備註, transport: row.交通 };
-                            });
+                // ★ 修復：精確抓取景點圖
+                getHeroImage(name) {
+                    if(!name) return "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?q=80&w=800";
+                    let query = "america travel";
+                    for (let key in KEYWORD_MAP) {
+                        if (name.includes(key)) {
+                            query = KEYWORD_MAP[key].en;
+                            break;
                         }
-                    });
-                }
-            }
-        }
-    </script>
-</body>
-</html>
+                    }
+                    // 使用 Unsplash 源，根據關鍵字隨機抓一張優質風景圖
+                    return `https://source.unsplash.com/featured/800x600/?${encodeURIComponent(query)}`;
+                },
+
+                getGuideText(name) {
+                    for (let key in GUIDE_TEXTS) { if (name && name.includes(key
