@@ -34,4 +34,423 @@
         .time-line { width: 2px; flex-grow: 1; background: #E5E1DA; margin-top: 8px; border-radius: 2px; }
         .content-col { flex-grow: 1; background: var(--jp-white); padding: 16px; border-radius: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.03); transition: transform 0.2s; }
         .content-col:active { transform: scale(0.98); }
-        .line-clamp-2 { display: -webkit-box
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .hotel-row .content-col { background: #FAF9F6; border-left: 4px solid var(--earth-red); }
+
+        /* 航班儀表板 */
+        .flight-dashboard-card { background: #334155; color: white; border-radius: 24px; padding: 24px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(51, 65, 85, 0.3); }
+        .flight-row { display: flex; justify-content: space-between; margin-bottom: 16px; }
+        .flight-label { font-size: 10px; opacity: 0.6; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; }
+        .flight-value { font-size: 18px; font-weight: 800; color: var(--earth-yellow); }
+        .flight-big { font-size: 32px; font-weight: 900; line-height: 1; }
+
+        /* 標籤 */
+        .tag-eat { color: #D97706; background: #FEF3C7; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-right: 4px; font-size: 11px; }
+        .tag-buy { color: #2563EB; background: #DBEAFE; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-right: 4px; font-size: 11px; }
+        .tag-res { color: #DC2626; background: #FEE2E2; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-right: 4px; font-size: 11px; }
+        
+        /* 導遊與圖片 */
+        .guide-intro { background: #F8FAFC; border-radius: 12px; padding: 12px; font-size: 13px; line-height: 1.6; color: #475569; border-left: 3px solid #94A3B8; margin-top: 12px; margin-bottom: 12px; }
+        .guide-title { font-size: 10px; font-weight: 900; color: #94A3B8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; display: flex; items-center; gap: 4px; }
+        .hero-image { width: 100%; height: 200px; object-fit: cover; border-radius: 0 0 24px 24px; mask-image: linear-gradient(to bottom, black 80%, transparent 100%); }
+
+        .add-btn { position: fixed; bottom: 40px; right: 25px; width: 60px; height: 60px; border-radius: 50%; background: var(--earth-red); color: white; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 8px 25px rgba(166, 123, 113, 0.4); z-index: 100; }
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+<body x-data="travelApp()" x-init="init()">
+
+    <div class="relative h-64 bg-cover bg-center shadow-lg" style="background-image: url('https://images.unsplash.com/photo-1509225770129-fbcf8a696c0b?q=80&w=1200');">
+        <div class="absolute inset-0 bg-stone-900/20"></div>
+        <div class="absolute top-24 left-8 text-white">
+            <h1 class="text-3xl font-black tracking-tight leading-tight">2026 USA<br>Family Trip</h1>
+            <p class="text-[9px] font-bold opacity-70 uppercase tracking-[0.4em] mt-2">Canyon Expedition</p>
+        </div>
+        <div class="nav-overlay">
+            <button @click="currentTab = 'itinerary'" :class="currentTab==='itinerary'?'active':''" class="nav-btn"><i class="fas fa-map-marker-alt"></i></button>
+            <button @click="currentTab = 'info'" :class="currentTab==='info'?'active':''" class="nav-btn"><i class="fas fa-plane"></i></button>
+            <button @click="currentTab = 'expense'" :class="currentTab==='expense'?'active':''" class="nav-btn"><i class="fas fa-wallet"></i></button>
+        </div>
+    </div>
+
+    <main class="p-6 pb-40">
+        <div x-show="currentTab === 'itinerary'">
+            <div class="date-slider mb-6 no-scrollbar">
+                <template x-for="d in dates" :key="d.full">
+                    <div @click="activeDate = d.full; updateLocationByEvents()" :class="activeDate === d.full ? 'active' : ''" class="date-card">
+                        <div class="date-num" x-text="d.dayOnly"></div>
+                        <div class="date-day" x-text="d.weekday"></div>
+                    </div>
+                </template>
+            </div>
+
+            <div class="mb-8 flex items-center justify-between p-6 bg-white rounded-[28px] border border-stone-200/40 shadow-sm" x-show="weatherData.temp">
+                <div class="flex items-center gap-4">
+                    <i class="fas fa-sun text-2xl text-earth-yellow"></i>
+                    <div>
+                        <div class="text-[9px] font-black text-stone-300 uppercase tracking-widest" x-text="weatherData.city">LOADING...</div>
+                        <div class="text-2xl font-bold text-stone-700 tracking-tighter"><span x-text="weatherData.temp">--</span>°C</div>
+                    </div>
+                </div>
+                <div class="text-[9px] font-bold text-stone-400 bg-stone-50 px-3 py-1 rounded-full uppercase" x-text="weatherData.desc">--</div>
+            </div>
+
+            <div id="event-list">
+                <div x-show="events.length === 0" class="text-center py-20 text-stone-300 text-xs tracking-widest uppercase">Reading Data...</div>
+                
+                <template x-for="(event, index) in filteredEvents" :key="index">
+                    <div :class="isHotel(event.name) ? 'timeline-row hotel-row' : 'timeline-row'" @click="openDetail(event)">
+                        <div class="time-col">
+                            <span class="time-text" x-text="event.time || '--'"></span>
+                            <div class="time-line"></div>
+                        </div>
+                        <div class="content-col">
+                            <div class="flex justify-between items-start mb-1">
+                                <span class="text-[9px] font-black text-stone-300 uppercase tracking-widest" x-text="event.category"></span>
+                                <div x-show="event.transport" class="text-earth-red text-[10px] font-bold">
+                                    <i class="fas fa-route mr-1"></i><span x-text="event.transport"></span>
+                                </div>
+                            </div>
+                            <h3 class="text-xl font-black text-stone-800 leading-tight mb-2" x-text="event.name"></h3>
+                            <p class="text-xs text-stone-400 font-medium line-clamp-2" x-text="event.note || '點擊查看詳細資訊與導航...'"></p>
+                        </div>
+                    </div>
+                </template>
+                <div x-show="filteredEvents.length === 0 && events.length > 0" class="text-center py-10 text-stone-300 text-xs">本日無行程</div>
+            </div>
+        </div>
+
+        <div x-show="currentTab === 'info'" x-cloak class="space-y-6">
+            <template x-for="flight in allFlights" :key="flight.id">
+                <div class="flight-dashboard-card">
+                    <div class="flex justify-between items-start mb-6 border-b border-white/10 pb-4">
+                        <div>
+                            <div class="flight-label text-earth-yellow">Flight Number</div>
+                            <div class="flight-big" x-text="extractFlightCode(flight.note) || extractFlightCode(flight.transport) || 'FLIGHT'"></div>
+                        </div>
+                        <div class="text-right">
+                             <div class="flight-label">Date</div>
+                             <div class="text-lg font-bold" x-text="flight.date.substring(5)"></div>
+                        </div>
+                    </div>
+                    <div class="flight-row">
+                        <div><div class="flight-label">Check-in</div><div class="flight-value">--</div></div>
+                        <div class="text-right"><div class="flight-label text-earth-yellow">Gate</div><div class="flight-big">--</div></div>
+                    </div>
+                    <div class="flight-row">
+                        <div><div class="flight-label">Baggage</div><div class="flight-value">--</div></div>
+                        <div class="text-right"><div class="flight-label">Status</div><div class="text-xs font-bold bg-green-500 text-white px-2 py-1 rounded">Scheduled</div></div>
+                    </div>
+                    <button @click="checkFlight(extractFlightCode(flight.note) || extractFlightCode(flight.transport))" class="w-full py-3 bg-white text-stone-800 rounded-xl text-xs font-black uppercase tracking-widest hover:bg-earth-yellow transition-colors mt-2">
+                        Check Real-time Status <i class="fas fa-external-link-alt ml-1"></i>
+                    </button>
+                </div>
+            </template>
+            <div x-show="allFlights.length === 0" class="text-center text-stone-400 text-xs py-10">No flights found.</div>
+            <div class="p-8 bg-white rounded-[32px] border border-stone-100 shadow-sm">
+                <h2 class="text-[9px] font-black text-stone-300 mb-6 uppercase tracking-widest">Currency (USD → TWD)</h2>
+                <div class="flex items-center gap-4">
+                    <div class="flex-1"><input type="number" x-model="exchangeUSD" class="w-full p-4 bg-stone-50 rounded-2xl border-none text-xl font-bold text-stone-700 outline-none"></div>
+                    <i class="fas fa-arrow-right text-stone-200"></i>
+                    <div class="flex-1"><div class="w-full p-4 bg-stone-50 rounded-2xl font-bold text-stone-700 text-xl" x-text="'≈ ' + (exchangeUSD * 32.5).toFixed(0)"></div></div>
+                </div>
+            </div>
+        </div>
+
+        <div x-show="currentTab === 'expense'" x-cloak>
+            <div class="p-8 bg-stone-800 rounded-[35px] text-white mb-8 flex justify-between items-center shadow-xl border-b-4 border-earth-yellow">
+                <div>
+                    <p class="text-stone-400 text-[10px] font-bold uppercase tracking-widest mb-1">Total Spent</p>
+                    <div class="text-4xl font-light tracking-tighter">$ <span x-text="totalUSD">0</span></div>
+                </div>
+                <i class="fas fa-coins text-earth-yellow text-xl"></i>
+            </div>
+            <div class="space-y-3 pb-20">
+                <template x-for="exp in expenses" :key="exp.id">
+                    <div class="flex justify-between items-center p-5 bg-white rounded-[24px] border border-stone-100 shadow-sm">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 flex items-center justify-center rounded-full bg-stone-50 text-earth-red text-sm"><i :class="getCategoryIcon(exp.category)"></i></div>
+                            <div>
+                                <div class="font-bold text-stone-700 text-sm" x-text="exp.name"></div>
+                                <div class="text-[9px] font-bold text-stone-300 uppercase tracking-widest" x-text="exp.date + ' • ' + exp.category"></div>
+                            </div>
+                        </div>
+                        <div class="text-right font-black text-stone-800">$ <span x-text="exp.amount"></span></div>
+                    </div>
+                </template>
+            </div>
+        </div>
+        
+        <div class="text-center text-[10px] text-stone-300 pb-4 opacity-50">
+            App Version: 11.1 (AI-Visual)
+        </div>
+
+        <div x-show="selectedEvent" class="fixed inset-0 z-[100] bg-white flex flex-col" x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200 transform" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" x-cloak>
+            
+            <div class="relative h-48 bg-stone-200">
+                <img :src="getAIImage(selectedEvent?.name)" class="hero-image" onerror="this.src='https://images.unsplash.com/photo-1542259681-d4cd715568f9?q=80&w=800'">
+                <button @click="selectedEvent = null" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-white/20 backdrop-blur-md text-white flex items-center justify-center shadow-lg"><i class="fas fa-times"></i></button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-6 pb-32" x-data="{ evt: selectedEvent }">
+                <div class="inline-block bg-stone-800 text-white text-xs font-bold px-3 py-1 rounded-full mb-4">
+                    <i class="far fa-clock mr-1"></i> <span x-text="evt?.time || '--:--'"></span>
+                </div>
+                
+                <h1 class="text-3xl font-black text-stone-900 leading-tight mb-6" x-text="evt?.name"></h1>
+
+                <div class="guide-intro">
+                    <div class="guide-title"><i class="fas fa-robot"></i> AI Guide</div>
+                    <p x-text="getGuideInfo(evt?.name) || getGenericAdvice(evt?.category)"></p>
+                </div>
+
+                <div class="text-sm text-stone-600 leading-relaxed space-y-4">
+                    <h3 class="text-xs font-bold text-stone-400 uppercase tracking-widest border-b border-stone-100 pb-2 mb-2">My Notes</h3>
+                    <div x-html="highlightNotes(evt?.note || '尚無詳細備註')"></div>
+                </div>
+            </div>
+
+            <div class="p-6 border-t border-stone-100 bg-white absolute bottom-0 w-full">
+                <button @click="openGoogleMap(selectedEvent.name)" class="w-full py-4 bg-green-600 text-white rounded-xl font-bold text-lg shadow-lg active:scale-95 transition-transform flex items-center justify-center gap-2">
+                    <i class="fas fa-location-arrow"></i> 導航前往
+                </button>
+            </div>
+        </div>
+
+        <div x-show="showAddModal" class="fixed inset-0 z-[110] flex items-end justify-center bg-black/40 backdrop-blur-sm" x-cloak x-transition>
+            <div class="w-full bg-white rounded-t-[40px] p-8 pb-12 shadow-2xl max-w-xl">
+                <div class="space-y-5">
+                    <div class="grid grid-cols-2 gap-4">
+                        <select x-model="newExp.category" class="w-full bg-stone-50 p-4 rounded-2xl font-bold text-sm"><option>交通</option><option>飲食</option><option>住宿</option><option>門票</option><option>購物</option><option>其他</option></select>
+                        <select x-model="newExp.date" class="w-full bg-stone-50 p-4 rounded-2xl font-bold text-sm"><template x-for="d in dates" :key="d.displayDate"><option :value="d.displayDate" x-text="d.displayDate"></option></template></select>
+                    </div>
+                    <input type="text" x-model="newExp.name" placeholder="項目名稱" class="w-full bg-stone-50 p-4 rounded-2xl text-sm outline-none">
+                    <input type="number" x-model="newExp.amount" placeholder="金額 (USD)" class="w-full bg-stone-50 p-4 rounded-2xl text-xl font-black text-earth-red outline-none">
+                    <button @click="submitExpense()" :disabled="isSubmitting" class="w-full bg-stone-800 text-white py-5 rounded-2xl font-black tracking-widest active:scale-95 transition-all"><span x-text="isSubmitting ? 'SYNCING...' : 'SAVE TO SHEET'"></span></button>
+                    <button @click="showAddModal = false" class="w-full py-3 text-stone-400 text-xs">CANCEL</button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <button x-show="currentTab === 'expense'" @click="showAddModal = true" class="add-btn shadow-lg" x-transition><i class="fas fa-plus"></i></button>
+
+    <script>
+        // ★ 內建導遊資料庫
+        const GUIDE_DB = {
+            "大峽谷": "世界七大奇景之一，壯麗的紅色岩層紀錄了地球數十億年的歷史。南緣全年開放。日出與日落時分，陽光灑在峽谷壁上呈現的金紅色澤最為迷人。",
+            "Grand Canyon": "世界七大奇景之一。建議務必前往 Mather Point 觀賞日出。",
+            "羚羊谷": "攝影師的夢幻天堂！光束 (The Beam) 通常在正午前後出現。內部岩壁紋理如波浪般柔美。需由導遊帶領。",
+            "Antelope": "攝影師的夢幻天堂！請務必遵守導遊指示，這裡必須由納瓦荷族導遊帶領才能進入。",
+            "馬蹄灣": "科羅拉多河在此處轉了一個 270 度的大彎。最佳拍攝時間為上午 10 點至下午 2 點。",
+            "Horseshoe": "科羅拉多河在此處轉了一個 270 度的大彎。最佳拍攝時間為上午 10 點至下午 2 點。",
+            "拉斯維加斯": "沙漠中的不夜城！別錯過 Bellagio 的水舞秀（免費）以及 Sphere 的球體外牆燈光秀。",
+            "Las Vegas": "沙漠中的不夜城！推薦參觀 The Strip 大道上的各大主題飯店。",
+            "奧斯汀": "德州首府，充滿年輕活力。必去 Barton Springs Pool 游泳，並品嚐正宗德州烤肉。",
+            "Austin": "德州首府，充滿年輕活力。必去 Barton Springs Pool 游泳，並品嚐正宗德州烤肉。"
+        };
+
+        const LOCATIONS = {
+            "Austin": {lat: 30.2672, lon: -97.7431, name: "Austin, TX"},
+            "奧斯汀": {lat: 30.2672, lon: -97.7431, name: "Austin, TX"},
+            "大峽谷": {lat: 36.0544, lon: -112.1401, name: "Grand Canyon"},
+            "Grand": {lat: 36.0544, lon: -112.1401, name: "Grand Canyon"},
+            "羚羊谷": {lat: 36.8619, lon: -111.3743, name: "Page, AZ"},
+            "Page": {lat: 36.8619, lon: -111.3743, name: "Page, AZ"},
+            "拉斯維加斯": {lat: 36.1699, lon: -115.1398, name: "Las Vegas"},
+            "Vegas": {lat: 36.1699, lon: -115.1398, name: "Las Vegas"}
+        };
+
+        function travelApp() {
+            return {
+                currentTab: 'itinerary',
+                showAddModal: false,
+                isSubmitting: false,
+                selectedEvent: null,
+                activeDate: '2026/05/03',
+                totalUSD: 0,
+                exchangeUSD: 1,
+                newExp: { category: '飲食', date: '05/03', name: '', amount: '' },
+                weatherData: { temp: null, city: 'USA', icon: 'fa-sun', desc: 'Sunny' },
+                dates: [
+                    {full:'2026/05/03', weekday:'SUN', displayDate:'05/03', dayOnly:'03'},
+                    {full:'2026/05/04', weekday:'MON', displayDate:'05/04', dayOnly:'04'},
+                    {full:'2026/05/05', weekday:'TUE', displayDate:'05/05', dayOnly:'05'},
+                    {full:'2026/05/06', weekday:'WED', displayDate:'05/06', dayOnly:'06'},
+                    {full:'2026/05/07', weekday:'THU', displayDate:'05/07', dayOnly:'07'},
+                    {full:'2026/05/08', weekday:'FRI', displayDate:'05/08', dayOnly:'08'},
+                    {full:'2026/05/09', weekday:'SAT', displayDate:'05/09', dayOnly:'09'},
+                    {full:'2026/05/10', weekday:'SUN', displayDate:'05/10', dayOnly:'10'},
+                    {full:'2026/05/11', weekday:'MON', displayDate:'05/11', dayOnly:'11'},
+                    {full:'2026/05/12', weekday:'TUE', displayDate:'05/12', dayOnly:'12'},
+                    {full:'2026/05/13', weekday:'WED', displayDate:'05/13', dayOnly:'13'},
+                    {full:'2026/05/14', weekday:'THU', displayDate:'05/14', dayOnly:'14'},
+                    {full:'2026/05/15', weekday:'FRI', displayDate:'05/15', dayOnly:'15'},
+                    {full:'2026/05/16', weekday:'SAT', displayDate:'05/16', dayOnly:'16'},
+                    {full:'2026/05/17', weekday:'SUN', displayDate:'05/17', dayOnly:'17'},
+                    {full:'2026/05/18', weekday:'MON', displayDate:'05/18', dayOnly:'18'},
+                    {full:'2026/05/19', weekday:'TUE', displayDate:'05/19', dayOnly:'19'},
+                    {full:'2026/05/20', weekday:'WED', displayDate:'05/20', dayOnly:'20'}
+                ],
+                events: [],
+                expenses: [],
+                
+                async init() {
+                    await this.refreshAll();
+                    this.updateLocationByEvents();
+                },
+
+                openDetail(event) {
+                    this.selectedEvent = event;
+                },
+
+                openGoogleMap(name) { 
+                    if(!name) return;
+                    window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}`, '_blank'); 
+                },
+
+                getAIImage(name) {
+                    if(!name) return 'https://images.unsplash.com/photo-1542259681-d4cd715568f9?q=80&w=800';
+                    let query = name;
+                    if(name.includes('大峽谷')) query = 'Grand Canyon National Park landscape';
+                    else if(name.includes('羚羊谷')) query = 'Antelope Canyon interior';
+                    else if(name.includes('馬蹄灣')) query = 'Horseshoe Bend Arizona';
+                    else if(name.includes('拉斯維加斯') || name.includes('賭城')) query = 'Las Vegas Strip night';
+                    else if(name.includes('漢堡') || name.includes('In-N-Out')) query = 'Delicious Burger';
+                    else if(name.includes('飯店') || name.includes('住宿')) query = 'Luxury Hotel Room';
+                    else if(name.includes('Costco')) query = 'Supermarket interior';
+                    else if(name.includes('Outlet')) query = 'Shopping Mall';
+                    return `https://image.pollinations.ai/prompt/${encodeURIComponent(query + ' USA travel photography')}?width=800&height=400&nologo=true`;
+                },
+
+                get allFlights() { return this.events.filter(e => this.isFlight(e)); },
+
+                updateLocationByEvents() {
+                    const dailyEvents = this.events.filter(e => e.date === this.activeDate);
+                    let target = {lat: 30.2672, lon: -97.7431, name: "Austin, TX"}; 
+                    for (let event of dailyEvents) {
+                        for (let key in LOCATIONS) {
+                            if (event.name.includes(key) || (event.note && event.note.includes(key))) {
+                                target = LOCATIONS[key];
+                                break;
+                            }
+                        }
+                    }
+                    this.fetchWeather(target);
+                },
+
+                async fetchWeather(loc) {
+                    try {
+                        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&current=temperature_2m,weather_code&timezone=auto`);
+                        const data = await res.json();
+                        this.weatherData.temp = data.current.temperature_2m;
+                        this.weatherData.city = loc.name;
+                        this.weatherData.desc = "Live Temp";
+                    } catch(e) { console.log('Weather Error'); }
+                },
+
+                getGuideInfo(name) {
+                    if(!name) return null;
+                    for (let key in GUIDE_DB) {
+                        if (name.includes(key)) return GUIDE_DB[key];
+                    }
+                    return null;
+                },
+
+                getGenericAdvice(category) {
+                    if(!category) return "享受這段美好的旅程！";
+                    if(category.includes('飲食') || category.includes('餐廳')) return "💡 美國用餐小知識：餐廳內用通常需支付 15%~20% 小費。飲料通常可以免費續杯！";
+                    if(category.includes('住宿') || category.includes('飯店')) return "💡 住宿提醒：離開房間時建議在床頭留下 2-5 美元小費給房務人員。";
+                    if(category.includes('交通') || category.includes('車')) return "💡 自駕提醒：看到 'STOP' 標誌務必「完全停止」三秒再開。";
+                    if(category.includes('購物')) return "💡 購物小撇步：美國標價通常不含稅 (Tax)，結帳時會再加上去。";
+                    return "探索當地的美好角落，記得多拍幾張照片留念！";
+                },
+
+                highlightNotes(note) {
+                    if (!note) return '';
+                    let html = note.replace(/\n/g, '<br>'); 
+                    html = html.replace(/(必吃|好吃|推薦)/g, '<span class="tag-eat"><i class="fas fa-utensils"></i> $1</span>');
+                    html = html.replace(/(必買|伴手禮|購物)/g, '<span class="tag-buy"><i class="fas fa-shopping-bag"></i> $1</span>');
+                    html = html.replace(/(預約|訂位|門票|Code|號碼)/gi, '<span class="tag-res"><i class="fas fa-ticket-alt"></i> $1</span>');
+                    return html;
+                },
+
+                get filteredEvents() {
+                    let dailyEvents = this.events.filter(e => e.date === this.activeDate);
+                    let hotels = dailyEvents.filter(e => this.isHotel(e.name));
+                    let others = dailyEvents.filter(e => !this.isHotel(e.name));
+                    return [...others, ...hotels];
+                },
+
+                isHotel(name) { return name && (name.includes('住宿') || name.includes('Hotel') || name.includes('Inn') || name.includes('飯店')); },
+                isFlight(event) { 
+                    const code = this.extractFlightCode(event.note) || this.extractFlightCode(event.transport);
+                    return (event.category && (event.category.includes('航班') || event.category.includes('Flight'))) || (code !== null);
+                },
+
+                getCategoryIcon(cat) { const icons = { '交通': 'fa-car', '飲食': 'fa-utensils', '住宿': 'fa-hotel', '門票': 'fa-ticket-alt', '購物': 'fa-shopping-bag', '其他': 'fa-ellipsis-h' }; return icons[cat] || 'fa-dollar-sign'; },
+                extractFlightCode(str) { if(!str) return null; const match = str.match(/[A-Z0-9]{2}\d{3,4}/); return match ? match[0] : null; },
+                checkFlight(code) { if(!code) return alert('找不到航班號碼'); window.open(`https://flightaware.com/live/flight/${code}`, '_blank'); },
+                
+                async refreshAll() {
+                    const timeStamp = new Date().getTime();
+                    const SHEETS_CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTCDL1TfyD_VsfRPWQxEUovWSnLZmpUzAKrZr-ni7BIJ8DgrKWxPGRywUCv7Eu6j-rSbcdPZbG4kiX1/pub?gid=1750147690&single=true&output=csv&t=${timeStamp}`;
+                    const EXPENSE_CSV_URL = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTCDL1TfyD_VsfRPWQxEUovWSnLZmpUzAKrZr-ni7BIJ8DgrKWxPGRywUCv7Eu6j-rSbcdPZbG4kiX1/pub?gid=320828565&single=true&output=csv&t=${timeStamp}`;
+                    
+                    Papa.parse(SHEETS_CSV_URL, {
+                        download: true, header: true, skipEmptyLines: true,
+                        complete: (results) => {
+                            this.events = results.data.map((row, index) => {
+                                let dateStr = row.日期;
+                                if (dateStr) {
+                                    let parts = dateStr.match(/\d+/g); 
+                                    if(parts && parts.length >= 2) {
+                                        let y = parts.length === 3 ? parts[0] : '2026';
+                                        let m = parts.length === 3 ? parts[1] : parts[0];
+                                        let d = parts.length === 3 ? parts[2] : parts[1];
+                                        dateStr = `${y}/${m.padStart(2, '0')}/${d.padStart(2, '0')}`;
+                                    }
+                                }
+                                return {
+                                    id: index, 
+                                    date: dateStr, 
+                                    time: row.時間, 
+                                    name: row.行程, 
+                                    transport: row.交通 || '', 
+                                    category: row.行程, 
+                                    note: row.備註 || ''
+                                };
+                            });
+                            this.updateLocationByEvents();
+                        }
+                    });
+
+                    Papa.parse(EXPENSE_CSV_URL, {
+                        download: true, header: true, skipEmptyLines: true,
+                        complete: (results) => {
+                            this.expenses = results.data.reverse().map((row, index) => ({
+                                id: index, date: row.日期, category: row.類別, name: row.名稱, amount: row.金額
+                            }));
+                            this.totalUSD = this.expenses.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
+                        }
+                    });
+                },
+
+                async submitExpense() {
+                    if(!this.newExp.name || !this.newExp.amount) return alert('請填寫完整內容');
+                    this.isSubmitting = true;
+                    const API_URL = 'https://script.google.com/macros/s/AKfycbwjDZbYAkhd9qCIcmXvBcf7NdpbF70Kq7FK0YxejypXoqQUv0kTkEwSgTDhZjAvU56i/exec';
+                    try { 
+                        await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(this.newExp) }); 
+                        alert('已送出紀錄！'); 
+                        this.showAddModal = false; 
+                        this.newExp.name = ''; this.newExp.amount = '';
+                        setTimeout(() => this.refreshAll(), 2000);
+                    } 
+                    catch (e) { alert('同步失敗'); } finally { this.isSubmitting = false; }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
