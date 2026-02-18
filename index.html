@@ -10,10 +10,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
     <style>
+        /* 定義主題色：大地色系 (Earth Tone) */
         :root { --earth-red: #A67B71; --earth-yellow: #D9B48F; --earth-bg: #F5F2EE; --text-main: #3D3530; --jp-white: #FFFFFF; }
         body { font-family: -apple-system, "PingFang TC", sans-serif; background: var(--earth-bg); color: var(--text-main); -webkit-tap-highlight-color: transparent; }
         
-        /* 橫向滾動日期 */
+        /* 橫向滾動日期選單 */
         .date-slider { display: flex; overflow-x: auto; gap: 12px; padding: 20px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
         .date-slider::-webkit-scrollbar { display: none; }
         .date-card { flex: 0 0 80px; text-align: center; padding: 14px 0; border-radius: 20px; background: var(--jp-white); border: 1px solid #E5E1DA; transition: 0.3s; }
@@ -21,17 +22,26 @@
         .date-num { font-size: 22px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
         .date-day { font-size: 10px; font-weight: 500; opacity: 0.6; text-transform: uppercase; }
 
-        /* 導航列 */
+        /* 導航列 (三按鈕) */
         .nav-overlay { position: absolute; bottom: -24px; right: 24px; display: flex; gap: 12px; z-index: 50; }
         .nav-btn { width: 52px; height: 52px; border-radius: 50%; background: var(--jp-white); color: var(--earth-red); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: none; transition: 0.2s; }
         .nav-btn.active { background: var(--earth-yellow); color: white; transform: scale(1.1); }
 
         /* 卡片樣式 */
-        .event-card { background: var(--jp-white); border-radius: 24px; padding: 20px; margin-bottom: 12px; border: 1px solid rgba(0,0,0,0.02); box-shadow: 0 2px 10px rgba(0,0,0,0.01); display: flex; flex-direction: column; gap: 8px; }
+        .event-card { background: var(--jp-white); border-radius: 24px; padding: 20px; margin-bottom: 20px; border: 1px solid rgba(0,0,0,0.02); box-shadow: 0 4px 20px rgba(0,0,0,0.03); display: flex; flex-direction: column; gap: 12px; position: relative; overflow: hidden; }
         .hotel-card { background: #FAF9F6; border-left: 5px solid var(--earth-red); }
-        .flight-card-live { background: #2D3748; color: white; border-radius: 24px; padding: 20px; margin-bottom: 12px; position: relative; overflow: hidden; }
+        .flight-card-live { background: #2D3748; color: white; border-radius: 24px; padding: 20px; margin-bottom: 20px; position: relative; overflow: hidden; }
         .flight-card-live::after { content: ''; position: absolute; right: -20px; top: -20px; width: 100px; height: 100px; background: rgba(255,255,255,0.05); border-radius: 50%; pointer-events: none; }
         
+        /* 導遊標籤樣式 */
+        .tag-eat { color: #D97706; background: #FEF3C7; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-right: 4px; font-size: 11px; }
+        .tag-buy { color: #2563EB; background: #DBEAFE; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-right: 4px; font-size: 11px; }
+        .tag-res { color: #DC2626; background: #FEE2E2; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-right: 4px; font-size: 11px; }
+        
+        /* 導遊簡介區塊 */
+        .guide-intro { background: #F8FAFC; border-radius: 12px; padding: 12px; font-size: 13px; line-height: 1.6; color: #475569; border-left: 3px solid #94A3B8; margin-top: 8px; }
+        .guide-title { font-size: 10px; font-weight: 900; color: #94A3B8; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 4px; display: flex; items-center; gap: 4px; }
+
         .weather-icon { font-size: 28px; color: var(--earth-yellow); }
         .add-btn { position: fixed; bottom: 40px; right: 25px; width: 60px; height: 60px; border-radius: 50%; background: var(--earth-red); color: white; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 8px 25px rgba(166, 123, 113, 0.4); z-index: 100; }
         [x-cloak] { display: none !important; }
@@ -57,7 +67,7 @@
         <div x-show="currentTab === 'itinerary'">
             <div class="date-slider mb-6">
                 <template x-for="d in dates" :key="d.full">
-                    <div @click="activeDate = d.full; fetchWeather()" :class="activeDate === d.full ? 'active' : ''" class="date-card">
+                    <div @click="activeDate = d.full; updateLocationByEvents()" :class="activeDate === d.full ? 'active' : ''" class="date-card">
                         <div class="date-num" x-text="d.dayOnly"></div>
                         <div class="date-day" x-text="d.weekday"></div>
                     </div>
@@ -81,199 +91,18 @@
                 <template x-for="(event, index) in filteredEvents" :key="index">
                     <div x-show="isFlight(event)" class="flight-card-live shadow-lg">
                         <div class="flex justify-between items-center mb-4 opacity-70 text-[10px] uppercase tracking-widest">
-                            <span><i class="fas fa-plane-departure mr-2"></i>Flight Status</span>
+                            <span><i class="fas fa-plane-departure mr-2"></i>Flight Info</span>
                             <span class="text-green-400 font-bold">• Live Link</span>
                         </div>
                         <div class="flex justify-between items-center mb-6">
                             <div class="text-2xl font-black" x-text="extractFlightCode(event.note)">--</div>
-                            <div class="text-xs opacity-50">Tap to track</div>
+                            <div class="text-xs opacity-50" x-text="event.name"></div>
                         </div>
                         <button @click="checkFlight(extractFlightCode(event.note))" class="w-full py-3 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-bold uppercase tracking-widest transition-all">
                             View Gate & Baggage <i class="fas fa-external-link-alt ml-1"></i>
                         </button>
                     </div>
 
-                    <div x-show="!isFlight(event)" :class="isHotel(event.name) ? 'event-card hotel-card' : 'event-card'" @click="openGoogleMap(event.name)">
+                    <div x-show="!isFlight(event)" :class="isHotel(event.name) ? 'event-card hotel-card' : 'event-card'">
                         <div class="flex justify-between items-center text-xs">
-                            <div class="font-bold text-stone-400 bg-stone-50 px-2 py-1 rounded"><i class="far fa-clock mr-1"></i><span x-text="event.time || '--:--'"></span></div>
-                            <div x-show="event.transport" class="text-earth-red font-bold flex items-center gap-1"><i class="fas fa-route"></i><span x-text="event.transport"></span></div>
-                        </div>
-                        <h3 class="text-lg font-bold text-stone-800" x-text="event.name"></h3>
-                        <div x-show="event.note" class="pt-2 border-t border-dashed border-stone-100 mt-1"><p class="text-xs text-stone-400 leading-relaxed font-light" x-text="event.note"></p></div>
-                    </div>
-                </template>
-            </div>
-        </div>
-
-        <div x-show="currentTab === 'info'" x-cloak class="space-y-6">
-            <div class="p-8 bg-white rounded-[32px] border border-stone-100 shadow-sm">
-                <h2 class="text-[9px] font-black text-stone-300 mb-6 uppercase tracking-widest">Currency (USD → TWD)</h2>
-                <div class="flex items-center gap-4">
-                    <div class="flex-1"><input type="number" x-model="exchangeUSD" class="w-full p-4 bg-stone-50 rounded-2xl border-none text-xl font-bold text-stone-700 outline-none"></div>
-                    <i class="fas fa-arrow-right text-stone-200"></i>
-                    <div class="flex-1"><div class="w-full p-4 bg-stone-50 rounded-2xl font-bold text-stone-700 text-xl" x-text="(exchangeUSD * 32.5).toFixed(0)"></div></div>
-                </div>
-            </div>
-            <div class="p-6 bg-stone-800 text-white rounded-[24px]">
-                 <div class="flex justify-between items-center text-xs font-bold"><span>🇺🇸 911</span><span>🇹🇼 +1-202-895-1800</span></div>
-            </div>
-        </div>
-
-        <div x-show="currentTab === 'expense'" x-cloak>
-            <div class="p-8 bg-stone-800 rounded-[35px] text-white mb-8 flex justify-between items-center shadow-xl border-b-4 border-earth-yellow">
-                <div>
-                    <p class="text-stone-400 text-[10px] font-bold uppercase tracking-widest mb-1">Total Spent</p>
-                    <div class="text-4xl font-light tracking-tighter">$ <span x-text="totalUSD">0</span></div>
-                </div>
-                <i class="fas fa-coins text-earth-yellow text-xl"></i>
-            </div>
-            
-            <div class="space-y-3 pb-20">
-                <template x-for="exp in expenses" :key="exp.id">
-                    <div class="flex justify-between items-center p-5 bg-white rounded-[24px] border border-stone-100 shadow-sm">
-                        <div class="flex items-center gap-4">
-                            <div class="w-10 h-10 flex items-center justify-center rounded-full bg-stone-50 text-earth-red text-sm"><i :class="getCategoryIcon(exp.category)"></i></div>
-                            <div>
-                                <div class="font-bold text-stone-700 text-sm" x-text="exp.name"></div>
-                                <div class="text-[9px] font-bold text-stone-300 uppercase tracking-widest" x-text="exp.date + ' • ' + exp.category"></div>
-                            </div>
-                        </div>
-                        <div class="text-right font-black text-stone-800">$ <span x-text="exp.amount"></span></div>
-                    </div>
-                </template>
-                <div x-show="expenses.length === 0" class="text-center text-stone-300 text-[10px]">No expenses yet.</div>
-            </div>
-        </div>
-
-        <div x-show="showAddModal" class="fixed inset-0 z-[110] flex items-end justify-center bg-black/40 backdrop-blur-sm" x-cloak x-transition>
-            <div class="w-full bg-white rounded-t-[40px] p-8 pb-12 shadow-2xl max-w-xl">
-                <div class="space-y-5">
-                    <div class="grid grid-cols-2 gap-4">
-                        <select x-model="newExp.category" class="w-full bg-stone-50 p-4 rounded-2xl font-bold text-sm"><option>交通</option><option>飲食</option><option>住宿</option><option>門票</option><option>購物</option><option>其他</option></select>
-                        <select x-model="newExp.date" class="w-full bg-stone-50 p-4 rounded-2xl font-bold text-sm"><template x-for="d in dates" :key="d.displayDate"><option :value="d.displayDate" x-text="d.displayDate"></option></template></select>
-                    </div>
-                    <input type="text" x-model="newExp.name" placeholder="項目名稱" class="w-full bg-stone-50 p-4 rounded-2xl text-sm outline-none">
-                    <input type="number" x-model="newExp.amount" placeholder="金額 (USD)" class="w-full bg-stone-50 p-4 rounded-2xl text-xl font-black text-earth-red outline-none">
-                    <button @click="submitExpense()" :disabled="isSubmitting" class="w-full bg-stone-800 text-white py-5 rounded-2xl font-black tracking-widest active:scale-95 transition-all"><span x-text="isSubmitting ? 'SYNCING...' : 'SAVE TO SHEET'"></span></button>
-                    <button @click="showAddModal = false" class="w-full py-3 text-stone-400 text-xs">CANCEL</button>
-                </div>
-            </div>
-        </div>
-    </main>
-
-    <button x-show="currentTab === 'expense'" @click="showAddModal = true" class="add-btn shadow-lg" x-transition><i class="fas fa-plus"></i></button>
-
-    <script>
-        function travelApp() {
-            return {
-                currentTab: 'itinerary',
-                showAddModal: false,
-                isSubmitting: false,
-                activeDate: '2026/05/03',
-                totalUSD: 0,
-                exchangeUSD: 1,
-                newExp: { category: '飲食', date: '05/03', name: '', amount: '' },
-                weatherData: { temp: null, city: 'USA', icon: 'fa-sun', desc: 'Sunny' },
-                dates: [
-                    {full:'2026/05/03', weekday:'SUN', displayDate:'05/03', dayOnly:'03'},
-                    {full:'2026/05/04', weekday:'MON', displayDate:'05/04', dayOnly:'04'},
-                    {full:'2026/05/05', weekday:'TUE', displayDate:'05/05', dayOnly:'05'},
-                    {full:'2026/05/06', weekday:'WED', displayDate:'05/06', dayOnly:'06'},
-                    {full:'2026/05/07', weekday:'THU', displayDate:'05/07', dayOnly:'07'},
-                    {full:'2026/05/08', weekday:'FRI', displayDate:'05/08', dayOnly:'08'},
-                    {full:'2026/05/09', weekday:'SAT', displayDate:'05/09', dayOnly:'09'},
-                    {full:'2026/05/10', weekday:'SUN', displayDate:'05/10', dayOnly:'10'},
-                    {full:'2026/05/11', weekday:'MON', displayDate:'05/11', dayOnly:'11'},
-                    {full:'2026/05/12', weekday:'TUE', displayDate:'05/12', dayOnly:'12'},
-                    {full:'2026/05/13', weekday:'WED', displayDate:'05/13', dayOnly:'13'},
-                    {full:'2026/05/14', weekday:'THU', displayDate:'05/14', dayOnly:'14'},
-                    {full:'2026/05/15', weekday:'FRI', displayDate:'05/15', dayOnly:'15'},
-                    {full:'2026/05/16', weekday:'SAT', displayDate:'05/16', dayOnly:'16'},
-                    {full:'2026/05/17', weekday:'SUN', displayDate:'05/17', dayOnly:'17'},
-                    {full:'2026/05/18', weekday:'MON', displayDate:'05/18', dayOnly:'18'},
-                    {full:'2026/05/19', weekday:'TUE', displayDate:'05/19', dayOnly:'19'},
-                    {full:'2026/05/20', weekday:'WED', displayDate:'05/20', dayOnly:'20'}
-                ],
-                events: [],
-                expenses: [],
-                
-                async init() {
-                    this.refreshAll();
-                    this.fetchWeather();
-                },
-
-                // 2. 自動天氣抓取
-                async fetchWeather() {
-                    const lat = 30.2672; const lon = -97.7431; 
-                    try {
-                        const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,weather_code&timezone=auto`);
-                        const data = await res.json();
-                        this.weatherData.temp = data.current.temperature_2m;
-                        this.weatherData.city = "Austin, TX";
-                        this.weatherData.desc = "Live Temp";
-                    } catch(e) { console.log('Weather Error'); }
-                },
-
-                get filteredEvents() {
-                    let dailyEvents = this.events.filter(e => e.date === this.activeDate);
-                    let flights = dailyEvents.filter(e => this.isFlight(e));
-                    let hotels = dailyEvents.filter(e => this.isHotel(e.name));
-                    let others = dailyEvents.filter(e => !this.isHotel(e.name) && !this.isFlight(e));
-                    return [...flights, ...others, ...hotels];
-                },
-
-                isHotel(name) { return name && (name.includes('住宿') || name.includes('Hotel') || name.includes('Inn') || name.includes('飯店')); },
-                isFlight(event) { return event.category && (event.category.includes('航班') || event.category.includes('Flight') || (event.transport && (event.transport.includes('UA') || event.transport.includes('BR')))); },
-                getCategoryIcon(cat) { const icons = { '交通': 'fa-car', '飲食': 'fa-utensils', '住宿': 'fa-hotel', '門票': 'fa-ticket-alt', '購物': 'fa-shopping-bag', '其他': 'fa-ellipsis-h' }; return icons[cat] || 'fa-dollar-sign'; },
-                extractFlightCode(str) { if(!str) return 'FLIGHT'; const match = str.match(/[A-Z0-9]{2,}\d{3,4}/); return match ? match[0] : str; },
-                checkFlight(code) { window.open(`https://flightaware.com/live/flight/${code}`, '_blank'); },
-                openGoogleMap(name) { window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}`, '_blank'); },
-
-                async refreshAll() {
-                    // ★ 您的連結已整合
-                    const SHEETS_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTCDL1TfyD_VsfRPWQxEUovWSnLZmpUzAKrZr-ni7BIJ8DgrKWxPGRywUCv7Eu6j-rSbcdPZbG4kiX1/pub?gid=1750147690&single=true&output=csv';
-                    const EXPENSE_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTCDL1TfyD_VsfRPWQxEUovWSnLZmpUzAKrZr-ni7BIJ8DgrKWxPGRywUCv7Eu6j-rSbcdPZbG4kiX1/pub?gid=320828565&single=true&output=csv';
-                    
-                    // 讀取行程
-                    Papa.parse(SHEETS_CSV_URL, {
-                        download: true, header: true, skipEmptyLines: true,
-                        complete: (results) => {
-                            this.events = results.data.map((row, index) => ({
-                                id: index, date: row.日期, time: row.時間, name: row.行程, transport: row.交通 || '', category: row.行程, note: row.備註 || ''
-                            }));
-                        }
-                    });
-
-                    // 讀取花費 (計算總額)
-                    Papa.parse(EXPENSE_CSV_URL, {
-                        download: true, header: true, skipEmptyLines: true,
-                        complete: (results) => {
-                            this.expenses = results.data.reverse().map((row, index) => ({
-                                id: index, date: row.日期, category: row.類別, name: row.名稱, amount: row.金額
-                            }));
-                            // 計算總花費
-                            this.totalUSD = this.expenses.reduce((sum, item) => sum + (parseFloat(item.amount) || 0), 0);
-                        }
-                    });
-                },
-
-                async submitExpense() {
-                    if(!this.newExp.name || !this.newExp.amount) return alert('請填寫完整內容');
-                    this.isSubmitting = true;
-                    // ★ 您的 GAS 寫入連結
-                    const API_URL = 'https://script.google.com/macros/s/AKfycbwjDZbYAkhd9qCIcmXvBcf7NdpbF70Kq7FK0YxejypXoqQUv0kTkEwSgTDhZjAvU56i/exec';
-                    try { 
-                        await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(this.newExp) }); 
-                        alert('已送出紀錄！(請稍後重新整理查看)'); 
-                        this.showAddModal = false; 
-                        this.newExp.name = ''; this.newExp.amount = '';
-                        // 簡單延遲後重整資料 (模擬即時)
-                        setTimeout(() => this.refreshAll(), 2000);
-                    } 
-                    catch (e) { alert('同步失敗'); } finally { this.isSubmitting = false; }
-                }
-            }
-        }
-    </script>
-</body>
-</html>
+                            <div class="font-bold text-stone-400 bg-stone-50
