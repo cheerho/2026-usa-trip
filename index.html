@@ -11,57 +11,56 @@
 
     <style>
         :root { --earth-red: #A67B71; --earth-yellow: #D9B48F; --earth-bg: #F5F2EE; --text-main: #3D3530; --jp-white: #FFFFFF; }
-        body { font-family: -apple-system, "PingFang TC", sans-serif; background: var(--earth-bg); color: var(--text-main); -webkit-tap-highlight-color: transparent; }
+        body { font-family: -apple-system, "PingFang TC", sans-serif; background: var(--earth-bg); color: var(--text-main); -webkit-tap-highlight-color: transparent; overflow-x: hidden; }
         .no-scrollbar::-webkit-scrollbar { display: none; }
-        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-
-        /* 日期選單 */
-        .date-slider { display: flex; overflow-x: auto; gap: 12px; padding: 20px; -webkit-overflow-scrolling: touch; }
-        .date-card { flex: 0 0 80px; text-align: center; padding: 14px 0; border-radius: 20px; background: var(--jp-white); border: 1px solid #E5E1DA; transition: 0.3s; cursor: pointer; }
+        
+        /* 日期滑塊 */
+        .date-slider { display: flex; overflow-x: auto; gap: 12px; padding: 20px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+        .date-card { flex: 0 0 75px; text-align: center; padding: 14px 0; border-radius: 20px; background: var(--jp-white); border: 1px solid #E5E1DA; transition: 0.2s; cursor: pointer; }
         .date-card.active { background: var(--earth-red); color: white; border-color: var(--earth-red); transform: translateY(-2px); box-shadow: 0 8px 15px rgba(166, 123, 113, 0.2); }
-        .date-num { font-size: 22px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
+        .date-num { font-size: 20px; font-weight: 800; line-height: 1; margin-bottom: 4px; }
         .date-day { font-size: 10px; font-weight: 500; opacity: 0.6; text-transform: uppercase; }
 
-        /* 導航 */
+        /* 導航按鈕 */
         .nav-overlay { position: absolute; bottom: -24px; right: 24px; display: flex; gap: 12px; z-index: 40; }
         .nav-btn { width: 52px; height: 52px; border-radius: 50%; background: var(--jp-white); color: var(--earth-red); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: none; transition: 0.2s; cursor: pointer; }
         .nav-btn.active { background: var(--earth-yellow); color: white; transform: scale(1.1); }
 
         /* 列表樣式 */
-        .timeline-row { display: flex; gap: 16px; margin-bottom: 24px; cursor: pointer; }
-        .time-col { display: flex; flex-direction: column; align-items: center; width: 60px; flex-shrink: 0; }
-        .time-text { font-size: 18px; font-weight: 900; color: var(--text-main); letter-spacing: -0.5px; }
+        .timeline-row { display: flex; gap: 16px; margin-bottom: 24px; cursor: pointer; padding: 0 4px; }
+        .time-col { display: flex; flex-direction: column; align-items: center; width: 55px; flex-shrink: 0; }
+        .time-text { font-size: 17px; font-weight: 900; color: var(--text-main); }
         .time-line { width: 2px; flex-grow: 1; background: #E5E1DA; margin-top: 8px; border-radius: 2px; }
-        .content-col { flex-grow: 1; background: var(--jp-white); padding: 16px; border-radius: 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.01); border: 1px solid rgba(0,0,0,0.03); }
+        .content-col { flex-grow: 1; background: var(--jp-white); padding: 16px; border-radius: 22px; box-shadow: 0 2px 12px rgba(0,0,0,0.02); border: 1px solid rgba(0,0,0,0.04); }
 
-        /* 航班儀表板樣式 */
-        .flight-card { background: #334155; color: white; border-radius: 24px; padding: 24px; margin-bottom: 20px; box-shadow: 0 10px 30px rgba(51, 65, 85, 0.3); }
-        .flight-main { display: flex; justify-content: space-between; align-items: center; text-align: center; margin-bottom: 24px; }
-        .flight-city { font-size: 20px; font-weight: 900; color: #FFF; line-height: 1.2; }
-        .flight-iata { font-size: 14px; font-weight: 400; color: var(--earth-yellow); opacity: 0.8; margin-top: 2px; }
-        .flight-arrow-box { flex: 1; position: relative; display: flex; flex-direction: column; align-items: center; }
-        .flight-duration { font-size: 10px; color: var(--earth-yellow); opacity: 0.7; margin-top: 4px; }
-        .flight-time-row { display: flex; justify-content: space-between; margin-bottom: 20px; text-align: center; font-size: 13px; }
-        .flight-date { font-weight: 300; opacity: 0.6; margin-bottom: 2px; }
-        .flight-time { font-weight: 800; font-size: 16px; color: var(--earth-yellow); }
-
-        /* 詳細頁圖片 */
-        .hero-image { width: 100%; height: 260px; object-fit: cover; border-radius: 0 0 32px 32px; }
-        .guide-box { background: #F8FAFC; border-radius: 16px; padding: 18px; font-size: 14px; line-height: 1.8; color: #475569; border-left: 5px solid #94A3B8; margin: 16px 0; }
+        /* 詳細頁 (Modal) */
+        .modal-container { position: fixed; inset: 0; z-index: 100; background: white; display: flex; flex-direction: column; overflow: hidden; }
+        .hero-image { width: 100%; height: 280px; object-fit: cover; border-radius: 0 0 32px 32px; }
+        .essence-box { background: #FAF9F6; border-radius: 24px; padding: 24px; border: 1px solid #EAE6DF; }
+        .section-title { font-size: 11px; font-weight: 900; color: #94A3B8; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 12px; display: flex; align-items: center; gap: 8px; border-bottom: 1px solid #EEE; padding-bottom: 6px; }
         
-        .tag-eat { color: #D97706; background: #FEF3C7; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-right: 4px; font-size: 11px; }
-        .tag-res { color: #DC2626; background: #FEE2E2; padding: 2px 6px; border-radius: 4px; font-weight: bold; margin-right: 4px; font-size: 11px; }
+        /* 攻略卡片 */
+        .tip-card { background: #FFFFFF; border-radius: 16px; padding: 16px; border-left: 4px solid var(--earth-yellow); margin-bottom: 12px; box-shadow: 0 4px 10px rgba(0,0,0,0.02); }
+        .tip-label { font-weight: 900; color: var(--earth-red); font-size: 12px; margin-bottom: 4px; display: block; }
+        .tag-eat { color: #D97706; background: #FEF3C7; padding: 2px 8px; border-radius: 6px; font-weight: bold; margin-right: 4px; font-size: 11px; }
+        .tag-res { color: #DC2626; background: #FEE2E2; padding: 2px 8px; border-radius: 6px; font-weight: bold; margin-right: 4px; font-size: 11px; }
+
+        /* 航班 */
+        .flight-card { background: #334155; color: white; border-radius: 28px; padding: 24px; margin-bottom: 20px; }
+        .flight-city { font-size: 22px; font-weight: 900; color: #FFF; }
+        .flight-iata { font-size: 13px; color: var(--earth-yellow); opacity: 0.8; }
+        
         [x-cloak] { display: none !important; }
     </style>
 </head>
 <body x-data="travelApp()" x-init="init()">
 
     <div class="relative h-64 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1509225770129-fbcf8a696c0b?q=80&w=1200');">
-        <div class="absolute inset-0 bg-stone-900/20"></div>
+        <div class="absolute inset-0 bg-stone-900/30"></div>
         <div class="absolute top-24 left-8 text-white">
-            <h1 class="text-3xl font-black tracking-tight leading-tight flex items-end gap-2">
+            <h1 class="text-3xl font-black tracking-tight flex items-end gap-2">
                 2026 USA<br>Family Trip
-                <span class="text-[10px] font-medium opacity-40 mb-1">v13.3</span>
+                <span class="text-[10px] font-medium opacity-50 mb-1">v13.8</span>
             </h1>
             <p class="text-[9px] font-bold opacity-70 uppercase tracking-[0.4em] mt-2">Canyon Expedition</p>
         </div>
@@ -73,7 +72,7 @@
     </div>
 
     <main class="p-6 pb-40">
-        <div x-show="currentTab === 'itinerary'">
+        <div x-show="currentTab === 'itinerary'" x-transition>
             <div class="date-slider mb-6 no-scrollbar">
                 <template x-for="d in dates" :key="d.full">
                     <div @click="activeDate = d.full" :class="activeDate === d.full ? 'active' : ''" class="date-card">
@@ -85,71 +84,65 @@
             
             <div id="event-list">
                 <div x-show="events.length === 0" class="text-center py-20 text-stone-300 text-xs tracking-widest uppercase">
-                    <i class="fas fa-sync fa-spin mr-2"></i>Loading Sheet Data...
+                    <i class="fas fa-circle-notch fa-spin mr-2"></i>Loading Itinerary...
                 </div>
-                
                 <template x-for="(event, index) in filteredEvents" :key="index">
                     <div class="timeline-row" @click="openDetail(event)">
                         <div class="time-col">
                             <span class="time-text" x-text="event.time || '--'"></span>
                             <div class="time-line"></div>
                         </div>
-                        <div class="content-col">
+                        <div class="content-col active:scale-[0.98] transition-all">
                             <span class="text-[9px] font-black text-stone-300 uppercase tracking-widest mb-1 block" x-text="event.category"></span>
                             <h3 class="text-xl font-black text-stone-800 leading-tight mb-2" x-text="event.name"></h3>
-                            <p class="text-xs text-stone-400 font-medium line-clamp-2" x-text="event.note || '點擊查看詳細資訊與導航...'"></p>
+                            <p class="text-xs text-stone-400 font-medium line-clamp-2" x-text="event.note || '查看詳細簡介與導航...'"></p>
                         </div>
                     </div>
                 </template>
-                <div x-show="filteredEvents.length === 0 && events.length > 0" class="text-center py-10 text-stone-300 text-xs italic">本日無行程資訊</div>
             </div>
         </div>
 
-        <div x-show="currentTab === 'info'" x-cloak class="space-y-6">
-            <template x-for="flight in allFlights" :key="flight.id">
-                <div class="flight-card">
-                    <div class="flex justify-between items-center mb-6 opacity-50 text-[10px] font-bold tracking-widest uppercase">
-                        <span x-text="extractFlightCode(flight.note) || extractFlightCode(flight.transport)"></span>
-                    </div>
-                    <div class="flight-main">
-                        <div>
-                            <div class="flight-city" x-text="getFlightInfo(flight).fromCity"></div>
-                            <div class="flight-iata" x-text="getFlightInfo(flight).fromIATA"></div>
+        <div x-show="currentTab === 'info'" x-cloak x-transition class="space-y-6">
+            <template x-for="f in flightList" :key="f.no">
+                <div class="flight-card shadow-xl">
+                    <div class="flex justify-between items-start text-center mb-6">
+                        <div class="flex-1">
+                            <div class="flight-city" x-text="f.fromC"></div>
+                            <div class="flight-iata" x-text="f.fromE"></div>
                         </div>
-                        <div class="flight-arrow-box">
-                            <div class="text-2xl font-light">→</div>
-                            <div class="flight-duration" x-text="getFlightInfo(flight).duration"></div>
+                        <div class="flex-1 flex flex-col items-center pt-2">
+                            <div class="text-2xl font-light opacity-30">→</div>
+                            <div class="text-[9px] text-earth-yellow uppercase font-bold mt-1" x-text="f.dur"></div>
                         </div>
-                        <div>
-                            <div class="flight-city" x-text="getFlightInfo(flight).toCity"></div>
-                            <div class="flight-iata" x-text="getFlightInfo(flight).toIATA"></div>
+                        <div class="flex-1">
+                            <div class="flight-city" x-text="f.toC"></div>
+                            <div class="flight-iata" x-text="f.toE"></div>
                         </div>
                     </div>
-                    <div class="flight-time-row">
-                        <div>
-                            <div class="flight-date" x-text="getFlightInfo(flight).depDate"></div>
-                            <div class="flight-time" x-text="getFlightInfo(flight).depTime"></div>
+                    <div class="flex justify-between text-center bg-black/20 rounded-2xl padding-12 p-3">
+                        <div class="flex-1">
+                            <div class="text-[10px] opacity-40 mb-1" x-text="f.depD"></div>
+                            <div class="text-lg font-bold text-earth-yellow" x-text="f.depT"></div>
                         </div>
-                        <div class="pt-4 opacity-20">|</div>
-                        <div>
-                            <div class="flight-date" x-text="getFlightInfo(flight).arrDate"></div>
-                            <div class="flight-time" x-text="getFlightInfo(flight).arrTime"></div>
+                        <div class="w-px h-8 bg-white/10 my-auto"></div>
+                        <div class="flex-1">
+                            <div class="text-[10px] opacity-40 mb-1" x-text="f.arrD"></div>
+                            <div class="text-lg font-bold text-earth-yellow" x-text="f.arrT"></div>
                         </div>
                     </div>
-                    <button @click="checkFlight(extractFlightCode(flight.note) || extractFlightCode(flight.transport))" class="w-full py-4 bg-white/10 rounded-2xl text-[11px] font-black uppercase tracking-widest">Track Status</button>
                 </div>
             </template>
             <div class="p-8 bg-white rounded-[32px] border border-stone-100 shadow-sm">
                 <h2 class="text-[9px] font-black text-stone-300 mb-6 uppercase tracking-widest">Currency Converter</h2>
                 <div class="flex items-center gap-4">
-                    <input type="number" x-model="exchangeUSD" class="flex-1 p-4 bg-stone-50 rounded-2xl text-xl font-bold outline-none">
+                    <input type="number" x-model="exchangeUSD" class="flex-1 p-4 bg-stone-50 rounded-2xl text-xl font-bold outline-none border-none">
                     <div class="text-stone-300"><i class="fas fa-arrow-right"></i></div>
                     <div class="flex-1 p-4 bg-stone-50 rounded-2xl font-bold text-xl" x-text="'≈ ' + (exchangeUSD * 32.5).toFixed(0)"></div>
                 </div>
             </div>
         </div>
 
-        <div x-show="currentTab === 'expense'" x-cloak>
+        <div x-show="currentTab === 'expense'" x-cloak x-transition>
             <div class="p-8 bg-stone-800 rounded-[35px] text-white flex justify-between items-center shadow-xl">
                 <div>
                     <p class="text-stone-400 text-[10px] font-bold uppercase tracking-widest">Total Spent</p>
@@ -157,41 +150,86 @@
                 </div>
                 <i class="fas fa-coins text-earth-yellow text-xl"></i>
             </div>
+            <div class="text-center py-20 text-stone-300 text-xs italic">記帳功能模組穩定中...</div>
         </div>
     </main>
 
-    <div x-show="selectedEvent" class="fixed inset-0 z-[100] bg-white flex flex-col shadow-2xl" x-transition x-cloak>
-        <div class="relative h-72 bg-stone-200">
-            <img :src="getHeroImage(selectedEvent?.name)" class="hero-image" onerror="this.src='https://images.unsplash.com/photo-1501594907352-04cda38ebc29?q=80&w=800'">
-            <button @click="selectedEvent = null" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-black/30 backdrop-blur-md text-white flex items-center justify-center"><i class="fas fa-times"></i></button>
+    <div x-show="selectedEvent" class="modal-container shadow-2xl" x-transition:enter="transition ease-out duration-300 transform" x-transition:enter-start="translate-y-full" x-transition:enter-end="translate-y-0" x-transition:leave="transition ease-in duration-200 transform" x-transition:leave-start="translate-y-0" x-transition:leave-end="translate-y-full" x-cloak>
+        
+        <div class="relative h-80 flex-shrink-0">
+            <img :src="getHeroImg(selectedEvent?.name)" class="hero-image shadow-md">
+            <button @click="selectedEvent = null" class="absolute top-6 right-6 w-10 h-10 rounded-full bg-black/30 backdrop-blur-md text-white flex items-center justify-center shadow-lg active:scale-90 transition-transform"><i class="fas fa-times"></i></button>
         </div>
-        <div class="flex-1 overflow-y-auto p-6 pb-32">
-            <h1 class="text-3xl font-black text-stone-900 leading-tight mb-4" x-text="selectedEvent?.name"></h1>
-            <div class="guide-box">
-                <div class="text-[10px] font-black text-stone-400 mb-2 uppercase tracking-widest"><i class="fas fa-robot mr-1"></i> AI Guide</div>
-                <p class="text-stone-600" x-text="getGuideText(selectedEvent?.name)"></p>
+
+        <div class="flex-1 overflow-y-auto p-6 pb-32 no-scrollbar">
+            <h1 class="text-3xl font-black text-stone-900 leading-tight mb-6" x-text="selectedEvent?.name"></h1>
+            
+            <div class="mb-8">
+                <div class="section-title"><i class="fas fa-landmark"></i> 景點本質深度介紹</div>
+                <p class="essence-text" x-text="getEssence(selectedEvent?.name)"></p>
             </div>
-            <div class="mt-8">
-                <h3 class="text-xs font-black text-stone-300 uppercase tracking-widest mb-4 border-b pb-2">Notes</h3>
+
+            <div class="mb-8">
+                <div class="section-title"><i class="fas fa-lightbulb"></i> AI 旅行實戰攻略</div>
+                <template x-for="tip in getTips(selectedEvent?.name)">
+                    <div class="tip-card">
+                        <span class="tip-label" x-text="tip.label"></span>
+                        <p class="tip-val" x-text="tip.val"></p>
+                    </div>
+                </template>
+            </div>
+
+            <div class="mt-8 border-t pt-8">
+                <div class="section-title"><i class="fas fa-pen-nib"></i> 個人行程備註</div>
                 <div class="text-stone-600 text-sm leading-relaxed" x-html="highlightNotes(selectedEvent?.note)"></div>
             </div>
         </div>
-        <div class="p-6 border-t bg-white sticky bottom-0 w-full">
-            <button @click="openGoogleMap(selectedEvent.name)" class="w-full py-4 bg-green-700 text-white rounded-2xl font-bold flex items-center justify-center gap-2">
-                <i class="fas fa-location-arrow"></i> 導航前往目的地
+
+        <div class="p-6 border-t bg-white flex-shrink-0">
+            <button @click="openGoogleMap(selectedEvent.name)" class="w-full py-5 bg-green-700 text-white rounded-2xl font-bold shadow-xl flex items-center justify-center gap-3 active:scale-95 transition-all">
+                <i class="fas fa-location-arrow"></i> 開啟 Google Maps 導航
             </button>
         </div>
     </div>
 
     <script>
-        const KEYWORD_MAP = {
-            "大峽谷": "grand canyon", "羚羊谷": "antelope canyon", "馬蹄灣": "horseshoe bend", "拉斯維加斯": "las vegas strip", "奧斯汀": "austin texas", "舊金山": "san francisco", "飯店": "hotel", "飛機": "airplane", "漢堡": "burger"
-        };
-        const GUIDE_TEXTS = {
-            "大峽谷": "【Google Maps 簡介】壯麗的紅色岩層峽谷聞名全球。\n【AI 深度解析】地球的地質教科書。建議前往 Mather Point 觀賞日出，視野最開闊。",
-            "羚羊谷": "【Google Maps 簡介】魔幻光束與波浪狀岩壁聞名。\n【AI 深度解析】攝影天堂。建議將白平衡調至『陰天模式』，能完美呈現橘紅色澤。",
-            "馬蹄灣": "【Google Maps 簡介】科羅拉多河形成 270 度馬蹄形彎曲。\n【AI 深度解析】完全沒有遮蔽物。最佳拍攝時間為上午 10 點至下午 2 點。",
-            "拉斯維加斯": "【Google Maps 簡介】沙漠度假勝地，以賭場與奢華飯店聞名。\n【AI 深度解析】夜幕低垂後才真正甦醒。推薦漫步 The Strip 大道欣賞 Bellagio 水舞。"
+        const MASTER_DB = {
+            "大峽谷": {
+                essence: "大峽谷國家公園（Grand Canyon）是科羅拉多河歷經六百萬年切割出的地理奇蹟，其岩層紀錄了地球近 20 億年的地質歷史。南緣 (South Rim) 平均海拔約 2,100 公尺，是世界七大自然奇景之一。其壯麗不僅在於深度，更在於隨陽光角度變換的紅、赭、金色岩層，反映出沉積岩的層次美感。",
+                tips: [
+                    { label: "日出秘境", val: "Mather Point 人最多，若想安靜拍美照建議前往 Yaki Point，視野更寬廣。" },
+                    { label: "溫差叮嚀", val: "峽谷邊緣早晚仍會降至 10°C 以下，務必攜帶防風外套。" },
+                    { label: "步道建議", val: "Rim Trail 是平緩且景觀極佳的選擇，適合全家人輕鬆散步。" }
+                ],
+                img: "https://images.unsplash.com/photo-1474044159687-1ee9f3a51722?q=80&w=800"
+            },
+            "羚羊谷": {
+                essence: "這是典型的狹縫型峽谷，由納瓦荷砂岩經過數百萬年暴洪沖刷而成。作為納瓦荷族的神聖領地，這裡被稱為『水流經岩石之處』。峽谷內部的岩壁呈現波浪狀流線紋理，當光線從頂部裂縫灑落，會隨著角度在紫、橘、粉紅之間變換。",
+                tips: [
+                    { label: "攝影技巧", val: "下羚羊谷的岩壁紋路更細緻，拍攝時請將白平衡鎖定在陰天模式。" },
+                    { label: "嚴格規範", val: "嚴禁腳架與自拍棒。導遊會幫忙找最佳取景點，請務必跟隨。" },
+                    { label: "細沙提醒", val: "谷內會有細沙飄落，建議穿著有口袋的防灰塵衣物。" }
+                ],
+                img: "https://images.unsplash.com/photo-1505521227773-01c9c6283439?q=80&w=800"
+            },
+            "馬蹄灣": {
+                essence: "馬蹄灣 (Horseshoe Bend) 展現了科羅拉多河最優雅的 270 度曲線。從 300 公尺高的紅色砂岩懸崖邊緣俯瞰，翡翠綠的河水與深紅色的岩壁形成強烈鮮明的對比，是西美公路旅行中最具代表性的標誌地景。",
+                tips: [
+                    { label: "光影抓取", val: "10:00-14:00 是最佳拍攝時段，此時陽光直射谷底，河水最翠綠。" },
+                    { label: "步行準備", val: "從停車場步行至此約 20 分鐘，多為沙地，建議穿運動鞋。" },
+                    { label: "安全警示", val: "崖邊多無護欄且風大，千萬不要為了自拍而過度倒退。" }
+                ],
+                img: "https://images.unsplash.com/photo-1504100918-02fd059b0b08?q=80&w=800"
+            },
+            "拉斯維加斯": {
+                essence: "拉斯維加斯（Las Vegas）是鑲嵌在莫哈維沙漠中央的人造奇蹟。這座城市的本質在於『超現實感的極致化』——在短短距離內可以跨越全球。夜晚霓虹燈亮起時，它代表了人類在荒涼沙漠中創造出的繁華巔峰。",
+                tips: [
+                    { label: "免費地標", val: "Bellagio 水舞秀每 15-30 分鐘一場，務必提早 10 分鐘卡位。" },
+                    { label: "交通建議", val: "大道 The Strip 走起來很累，建議搭乘 Deuce 巴士或接駁電車。" },
+                    { label: "小費文化", val: "餐廳小費標準約為 18-20%，結帳前記得確認是否已含。" }
+                ],
+                img: "https://images.unsplash.com/photo-1581351123004-757df051db8e?q=80&w=800"
+            }
         };
 
         function travelApp() {
@@ -203,60 +241,70 @@
                 exchangeUSD: 1,
                 dates: [],
                 events: [],
+                flightList: [
+                    { no: "UA872", fromC: "台北", fromE: "TPE", toC: "舊金山", toE: "SFO", depD: "05/03", depT: "09:50", arrD: "05/03", arrT: "06:25", dur: "11h 35m" },
+                    { no: "UA2042", fromC: "舊金山", fromE: "SFO", toC: "奧斯汀", toE: "AUS", depD: "05/03", depT: "08:55", arrD: "05/03", arrT: "14:27", dur: "3h 32m" },
+                    { no: "UA18", fromC: "舊金山", fromE: "SFO", toC: "台北", toE: "TPE", depD: "05/16", depT: "14:10", arrD: "05/18", arrT: "18:45", dur: "13h 35m" }
+                ],
                 
                 async init() {
-                    this.dates = this.generateDateRange('2026/05/03', '2026/05/18');
+                    // 修正日期生成邏輯
+                    this.dates = this.generateDates();
                     await this.refreshAll();
                 },
 
-                generateDateRange(start, end) {
-                    let dArr = [], s = new Date(start), e = new Date(end);
+                generateDates() {
+                    let dArr = [];
+                    let s = new Date(2026, 4, 3); // 5月3日
+                    let e = new Date(2026, 4, 18); // 5月18日
                     while(s <= e) {
-                        let m = String(s.getMonth() + 1).padStart(2, '0'), d = String(s.getDate()).padStart(2, '0');
-                        dArr.push({ full: `${s.getFullYear()}/${m}/${d}`, dayOnly: d, weekday: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'][s.getDay()] });
+                        let y = s.getFullYear();
+                        let m = String(s.getMonth() + 1).padStart(2, '0');
+                        let day = String(s.getDate()).padStart(2, '0');
+                        dArr.push({ full: `${y}/${m}/${day}`, dayOnly: day, weekday: ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'][s.getDay()] });
                         s.setDate(s.getDate() + 1);
                     }
                     return dArr;
                 },
 
-                getHeroImage(name) {
-                    if(!name) return "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?q=80&w=800";
-                    let q = "usa travel";
-                    for (let k in KEYWORD_MAP) { if (name.includes(k)) { q = KEYWORD_MAP[k]; break; } }
-                    return `https://source.unsplash.com/featured/800x600/?${encodeURIComponent(q)}&sig=${Math.random()}`; 
+                openDetail(e) { this.selectedEvent = e; },
+                
+                getHeroImg(name) {
+                    for (let k in MASTER_DB) { if (name && name.includes(k)) return MASTER_DB[k].img; }
+                    return "https://images.unsplash.com/photo-1501594907352-04cda38ebc29?q=80&w=800";
                 },
 
-                getGuideText(name) {
-                    for (let k in GUIDE_TEXTS) { if (name && name.includes(k)) return GUIDE_TEXTS[k]; }
-                    return "【AI 深度解析】這段行程充滿了公路旅行冒險感。氣候乾燥，請隨身攜帶保濕與防曬用品。";
+                getEssence(name) {
+                    for (let k in MASTER_DB) { if (name && name.includes(k)) return MASTER_DB[k].essence; }
+                    return "美國西岸公路旅行象徵著自由與探索。這段旅程橫跨了豐富的地理景觀與文化節點，從廣闊的高原沙漠到現代化的都市娛樂，每一處風景都在述說著不同的地質故事與美國精神。";
                 },
 
-                getFlightInfo(flight) {
-                    const c = this.extractFlightCode(flight.note) || this.extractFlightCode(flight.transport);
-                    if(c === 'UA872') return { fromCity: "台北", fromIATA: "TPE", toCity: "舊金山", toIATA: "SFO", depDate: "05/03", depTime: "09:50", arrDate: "05/03", arrTime: "06:25", duration: "11時35分" };
-                    if(c === 'UA2042') return { fromCity: "舊金山", fromIATA: "SFO", toCity: "奧斯汀", toIATA: "AUS", depDate: "05/03", depTime: "08:55", arrDate: "05/03", arrTime: "14:27", duration: "3時32分" };
-                    if(c === 'UA18') return { fromCity: "舊金山", fromIATA: "SFO", toCity: "台北", toIATA: "TPE", depDate: "05/16", depTime: "14:10", arrDate: "05/18", arrTime: "18:45", duration: "13時35分" };
-                    return { fromCity: "美國", fromIATA: "USA", toCity: "目的地", toIATA: "ARR", depDate: "--/--", depTime: "--:--", arrDate: "--/--", arrTime: "--:--", duration: "飛行中" };
+                getTips(name) {
+                    for (let k in MASTER_DB) { if (name && name.includes(k)) return MASTER_DB[k].tips; }
+                    return [
+                        { label: "通用建議", val: "公路旅行建議在車上備足飲用水與乾糧，美西荒野有時手機訊號較弱。" },
+                        { label: "AI 提醒", val: "美國多數商店不主動提供塑膠袋，建議隨身攜帶購物袋與防曬用品。" }
+                    ];
                 },
 
                 highlightNotes(note) {
-                    if (!note) return '尚無備註';
+                    if (!note) return '尚無備註資訊';
                     let h = note.replace(/\n/g, '<br>');
                     h = h.replace(/(必吃|推薦)/g, '<span class="tag-eat">$1</span>');
                     h = h.replace(/(預約|訂位|門票)/g, '<span class="tag-res">$1</span>');
                     return h;
                 },
 
-                openDetail(e) { this.selectedEvent = e; },
-                openGoogleMap(n) { window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(n)}`, '_blank'); },
-                get allFlights() { return this.events.filter(e => this.extractFlightCode(e.note) || this.extractFlightCode(e.transport)); },
-                extractFlightCode(s) { if(!s) return null; let m = s.match(/[A-Z]{2}\d{2,4}/); return m ? m[0] : null; },
-                checkFlight(c) { window.open(`https://flightaware.com/live/flight/${c}`, '_blank'); },
+                openGoogleMap(n) { 
+                    const q = encodeURIComponent(n + " USA");
+                    window.open(`https://www.google.com/maps/search/?api=1&query=${q}`, '_blank'); 
+                },
+
                 get filteredEvents() { return this.events.filter(e => e.date === this.activeDate); },
                 
                 async refreshAll() {
                     const ts = new Date().getTime();
-                    const url = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTCDL1TfyD_VsfRPWQxEUovWSnLZmpUzAKrZr-ni7BIJ8DgrKWxPGRywUCv7Eu6j-rSbcdPZbG4kiX1/pub?gid=1750147690&single=true&output=csv&cachebust=${ts}`;
+                    const url = `https://docs.google.com/spreadsheets/d/e/2PACX-1vTCDL1TfyD_VsfRPWQxEUovWSnLZmpUzAKrZr-ni7BIJ8DgrKWxPGRywUCv7Eu6j-rSbcdPZbG4kiX1/pub?gid=1750147690&single=true&output=csv&t=${ts}`;
                     Papa.parse(url, {
                         download: true, header: true, skipEmptyLines: true,
                         complete: (r) => {
