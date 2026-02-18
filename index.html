@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>2026 USA Family Trip</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.3/dist/cdn.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.15.0/Sortable.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <style>
+        :root { --earth-red: #A67B71; --earth-yellow: #D9B48F; --earth-bg: #F5F2EE; --text-main: #3D3530; --jp-white: #FFFFFF; }
+        body { font-family: -apple-system, "PingFang TC", sans-serif; background: var(--earth-bg); color: var(--text-main); -webkit-tap-highlight-color: transparent; }
+        
+        /* 橫向滾動日期選單 */
+        .date-slider { display: flex; overflow-x: auto; gap: 12px; padding: 20px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+        .date-slider::-webkit-scrollbar { display: none; }
+        .date-card { flex: 0 0 85px; text-align: center; padding: 14px 0; border-radius: 20px; background: var(--jp-white); border: 1px solid #E5E1DA; transition: 0.3s; }
+        .date-card.active { background: var(--earth-red); color: white; border-color: var(--earth-red); transform: translateY(-2px); box-shadow: 0 8px 15px rgba(166, 123, 113, 0.2); }
+        .date-day { font-size: 16px; font-weight: 800; margin-bottom: 2px; }
+        .date-num { font-size: 11px; font-weight: 500; opacity: 0.8; }
+
+        /* 導航按鈕浮動 */
+        .nav-overlay { position: absolute; bottom: -24px; right: 24px; display: flex; gap: 12px; z-index: 50; }
+        .nav-btn { width: 52px; height: 52px; border-radius: 50%; background: var(--jp-white); color: var(--earth-red); display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 15px rgba(0,0,0,0.08); border: none; }
+        .nav-btn.active { background: var(--earth-yellow); color: white; }
+
+        /* 行程卡片 */
+        .event-card { background: var(--jp-white); border-radius: 24px; padding: 20px; margin-bottom: 15px; border: 1px solid rgba(0,0,0,0.02); box-shadow: 0 2px 10px rgba(0,0,0,0.01); }
+        .flight-card { background: var(--earth-red); color: white; border: none; }
+        
+        /* 交通線 */
+        .transit-line { display: flex; items-center; gap: 10px; padding: 10px 40px; color: var(--earth-yellow); font-size: 12px; }
+        .line-dotted { flex: 1; border-top: 2px dotted #D1C7BD; }
+
+        .add-btn { position: fixed; bottom: 40px; right: 25px; width: 60px; height: 60px; border-radius: 50%; background: var(--earth-red); color: white; display: flex; align-items: center; justify-content: center; font-size: 22px; box-shadow: 0 8px 25px rgba(166, 123, 113, 0.4); z-index: 100; }
+        [x-cloak] { display: none !important; }
+        select { outline: none; -webkit-appearance: none; }
+    </style>
+</head>
+<body x-data="travelApp()" x-init="init()">
+
+    <div class="relative h-64 bg-cover bg-center shadow-lg" style="background-image: url('https://images.unsplash.com/photo-1509225770129-fbcf8a696c0b?q=80&w=1200');">
+        <div class="absolute inset-0 bg-stone-900/15"></div>
+        <div class="absolute top-24 left-8 text-white">
+            <h1 class="text-3xl font-black tracking-tight leading-tight">2026 USA<br>Family Trip</h1>
+            <p class="text-[9px] font-bold opacity-70 uppercase tracking-[0.4em] mt-2">Canyon Expedition</p>
+        </div>
+        
+        <div class="nav-overlay">
+            <button @click="currentTab = 'itinerary'" :class="currentTab==='itinerary'?'active':''" class="nav-btn"><i class="fas fa-map-marker-alt"></i></button>
+            <button @click="currentTab = 'expense'" :class="currentTab==='expense'?'active':''" class="nav-btn"><i class="fas fa-wallet"></i></button>
+        </div>
+    </div>
+
+    <main class="p-6 pb-40">
+        <div x-show="currentTab === 'itinerary'">
+            <div class="date-slider mb-6">
+                <template x-for="d in dates" :key="d.full">
+                    <div @click="activeDate = d.full" :class="activeDate === d.full ? 'active' : ''" class="date-card">
+                        <div class="date-day" x-text="d.weekday"></div>
+                        <div class="date-num" x-text="d.displayDate"></div>
+                    </div>
+                </template>
+            </div>
+
+            <div class="mb-8 flex items-center justify-between p-6 bg-white rounded-[28px] border border-stone-200/40">
+                <div class="flex items-center gap-4">
+                    <i class="fas fa-sun text-earth-yellow text-2xl"></i>
+                    <div>
+                        <div class="text-[9px] font-black text-stone-300 uppercase tracking-widest">Austin, TX</div>
+                        <div class="text-2xl font-bold text-stone-700 tracking-tighter">26°C</div>
+                    </div>
+                </div>
+                <div class="text-[9px] font-bold text-stone-400 bg-stone-50 px-3 py-1 rounded-full">SUNNY</div>
+            </div>
+
+            <div id="event-list">
+                <template x-for="(event, index) in filteredEvents" :key="event.id">
+                    <div>
+                        <div x-show="index > 0" class="transit-line">
+                            <div class="line-dotted"></div><i class="fas fa-car-side"></i><div class="line-dotted"></div>
+                        </div>
+                        <div :class="event.category === '航班' ? 'event-card flight-card' : 'event-card group'" @click="event.category !== '航班' && openGoogleMap(event.name)">
+                            <div class="flex justify-between items-start mb-3">
+                                <div class="px-2 py-1 rounded bg-stone-50/10 text-[9px] font-black uppercase tracking-widest" :class="event.category === '航班' ? 'text-white/70' : 'text-stone-400'" x-text="event.category"></div>
+                                <i class="fas fa-location-arrow text-[10px]" :class="event.category === '航班' ? 'text-white/30' : 'text-stone-200'"></i>
+                            </div>
+                            <h3 class="text-lg font-bold mb-2" x-text="event.name"></h3>
+                            <p class="text-xs opacity-80 leading-relaxed font-light" x-html="event.note"></p>
+                        </div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <div x-show="currentTab === 'expense'" x-cloak>
+            <div class="p-8 bg-stone-800 rounded-[35px] text-white mb-10 flex justify-between items-center shadow-xl border-b-4 border-earth-yellow">
+                <div>
+                    <p class="text-stone-400 text-[10px] font-bold uppercase tracking-widest mb-1">Total Spent (USD)</p>
+                    <div class="text-4xl font-light tracking-tighter">$ <span x-text="totalUSD"></span></div>
+                </div>
+                <i class="fas fa-coins text-earth-yellow text-xl"></i>
+            </div>
+
+            <div class="space-y-4">
+                <template x-for="exp in expenses" :key="exp.id">
+                    <div class="flex justify-between items-center p-5 bg-white rounded-[24px] border border-stone-100 shadow-sm">
+                        <div class="flex items-center gap-4">
+                            <div class="w-10 h-10 flex items-center justify-center rounded-full bg-stone-50 text-earth-red text-sm">
+                                <i :class="getCategoryIcon(exp.category)"></i>
+                            </div>
+                            <div>
+                                <div class="font-bold text-stone-700 text-sm" x-text="exp.name"></div>
+                                <div class="text-[9px] font-bold text-stone-300 uppercase tracking-widest" x-text="exp.date + ' • ' + exp.category"></div>
+                            </div>
+                        </div>
+                        <div class="text-right font-black text-stone-800">$ <span x-text="exp.amount"></span></div>
+                    </div>
+                </template>
+            </div>
+        </div>
+
+        <div x-show="showAddModal" class="fixed inset-0 z-[110] flex items-end justify-center bg-black/40 backdrop-blur-sm" x-cloak x-transition>
+            <div class="w-full bg-white rounded-t-[40px] p-8 pb-12 shadow-2xl max-w-xl">
+                <div class="flex justify-between items-center mb-8">
+                    <h3 class="text-xl font-black text-stone-800">Add Expense</h3>
+                    <button @click="showAddModal = false" class="text-stone-300 text-xl"><i class="fas fa-times-circle"></i></button>
+                </div>
+                <div class="space-y-5">
+                    <div class="grid grid-cols-2 gap-4">
+                        <select x-model="newExp.category" class="w-full bg-stone-50 p-4 rounded-2xl font-bold text-sm">
+                            <option>交通</option><option>飲食</option><option>住宿</option><option>門票</option><option>購物</option><option>其他</option>
+                        </select>
+                        <select x-model="newExp.date" class="w-full bg-stone-50 p-4 rounded-2xl font-bold text-sm">
+                            <template x-for="d in dates" :key="d.displayDate">
+                                <option :value="d.displayDate" x-text="d.displayDate"></option>
+                            </template>
+                        </select>
+                    </div>
+                    <input type="text" x-model="newExp.name" placeholder="項目名稱" class="w-full bg-stone-50 p-4 rounded-2xl text-sm outline-none">
+                    <input type="number" x-model="newExp.amount" placeholder="金額 (USD)" class="w-full bg-stone-50 p-4 rounded-2xl text-xl font-black text-earth-red outline-none">
+                    <button @click="submitExpense()" :disabled="isSubmitting" class="w-full bg-stone-800 text-white py-5 rounded-2xl font-black tracking-widest active:scale-95 transition-all">
+                        <span x-text="isSubmitting ? 'SYNCING...' : 'SAVE TO SHEET'"></span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <button @click="showAddModal = true" class="add-btn shadow-lg"><i class="fas fa-plus"></i></button>
+
+    <script>
+        function travelApp() {
+            return {
+                currentTab: 'itinerary',
+                showAddModal: false,
+                isSubmitting: false,
+                activeDate: '2026/05/03',
+                totalUSD: 0,
+                newExp: { category: '飲食', date: '05/03', name: '', amount: '' },
+                dates: [
+                    {full:'2026/05/03', weekday:'SUN', displayDate:'05/03'},
+                    {full:'2026/05/04', weekday:'MON', displayDate:'05/04'},
+                    {full:'2026/05/05', weekday:'TUE', displayDate:'05/05'},
+                    {full:'2026/05/06', weekday:'WED', displayDate:'05/06'},
+                    {full:'2026/05/07', weekday:'THU', displayDate:'05/07'},
+                    {full:'2026/05/08', weekday:'FRI', displayDate:'05/08'},
+                    {full:'2026/05/09', weekday:'SAT', displayDate:'05/09'},
+                    {full:'2026/05/10', weekday:'SUN', displayDate:'05/10'}
+                ],
+                events: [
+                    {id:1, date:'2026/05/03', category:'航班', name:'UA872', note:'出發前確認護照。'},
+                    {id:2, date:'2026/05/03', category:'住宿', name:'Austin Marriott', note:'Check-in @ 15:00'}
+                ],
+                expenses: [],
+                
+                init() {
+                    const el = document.getElementById('event-list');
+                    if(el) Sortable.create(el, { animation: 250, handle: '.group', ghostClass: 'opacity-10' });
+                    this.refreshAll();
+                },
+                get filteredEvents() { return this.events.filter(e => e.date === this.activeDate); },
+                getCategoryIcon(cat) {
+                    const icons = { '交通': 'fa-car', '飲食': 'fa-utensils', '住宿': 'fa-hotel', '門票': 'fa-ticket-alt', '購物': 'fa-shopping-bag', '其他': 'fa-ellipsis-h' };
+                    return icons[cat] || 'fa-dollar-sign';
+                },
+                openGoogleMap(name) { window.open(`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(name)}`, '_blank'); },
+                async refreshAll() { /* 此處可串接 PapaParse */ },
+                async submitExpense() {
+                    if(!this.newExp.name || !this.newExp.amount) return alert('請填寫完整內容');
+                    this.isSubmitting = true;
+                    const API_URL = 'https://script.google.com/macros/s/AKfycbwjDZbYAkhd9qCIcmXvBcf7NdpbF70Kq7FK0YxejypXoqQUv0kTkEwSgTDhZjAvU56i/exec';
+                    try {
+                        await fetch(API_URL, { method: 'POST', mode: 'no-cors', body: JSON.stringify(this.newExp) });
+                        alert('已送出紀錄！');
+                        this.showAddModal = false;
+                        this.newExp.name = ''; this.newExp.amount = '';
+                    } catch (e) { alert('同步失敗'); } finally { this.isSubmitting = false; }
+                }
+            }
+        }
+    </script>
+</body>
+</html>
